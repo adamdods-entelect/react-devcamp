@@ -1,0 +1,384 @@
+openapi: 3.0.3
+info:
+  title: Financial Services - Product Shop
+  version: 1.0.0
+  description: >-
+    This is a simplified backend for mobile and web frontends built as part of various devcamp projects
+servers:
+  - url: http://localhost:8080/client/v1
+tags:
+  - name: subscription
+    description: Financial Services Products API. List products, check their eligibility, and take up product subscriptions
+  - name: profile
+    description: Operations about the customer profile. Create a new customer profile, modify customer type, add accounts
+security:
+  - bearer_auth: []
+paths:
+  /types:
+    get:
+      tags:
+        - profile
+      summary: Get the customer and account types
+      responses:
+        '200':
+          description: list of customer and account types
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customerTypes:
+                    type: array
+                    items:
+                      $ref: 'customer-information.yaml#/components/schemas/CustomerTypesDto'
+                  accountTypes:
+                    type: array
+                    items:
+                      $ref: 'customer-information.yaml#/components/schemas/AccountTypeDto'
+      security: []
+  /profile:
+    get:
+      tags:
+        - profile
+      summary: Get the logged in user's profile
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: 'customer-information.yaml#/components/schemas/CustomerDto'
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "customer-information.yaml#/components/schemas/UnauthorizedError"
+    post:
+      summary: "Register a new customer profile on the system"
+      operationId: "registerCustomer"
+      tags:
+        - profile
+      requestBody:
+        $ref: '#/components/requestBodies/profile'
+      responses:
+        "200":
+          description: "Successfully created customer"
+          content:
+            application/json:
+              schema:
+                $ref: "customer-information.yaml#/components/schemas/CustomerDto"
+        "400":
+          description: "Customer for this user already exists. Use PATCH to update"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "customer-information.yaml#/components/schemas/UnauthorizedError"
+    patch:
+      tags:
+        - profile
+      summary: Update an existing profile
+      description: | 
+        Currently only updates the customer type.
+        I'm not really happy with this. This might be relevant: https://www.baeldung.com/spring-rest-json-patch.
+        Also might be fine to just return 204 instead of the customer.
+      operationId: updateCustomer
+      requestBody:
+        $ref: '#/components/requestBodies/profile'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: 'customer-information.yaml#/components/schemas/CustomerDto'
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "customer-information.yaml#/components/schemas/UnauthorizedError"
+  /profile/accounts:
+    get:
+      tags:
+        - profile
+      responses:
+        '200':
+          description: get associated accounts
+          content:
+            application/json:
+              schema:
+                $ref: 'customer-information.yaml#/components/schemas/AccountsDto'
+  /profile/accounts/{accountTypeId}:
+    put:
+      tags:
+        - profile
+      description: Add an account of a given type to the customer
+      operationId: addAccountOfType
+      parameters:
+        - name: "accountTypeId"
+          in: "path"
+          required: true
+          description: "The id of the accounttype to add"
+          schema:
+            type: integer
+            format: long
+      responses:
+        '204':
+          description: on success
+    delete:
+      tags:
+        - profile
+      description: Delete an account of a given type from the customer
+      operationId: removeAccountOfType
+      parameters:
+        - name: "accountTypeId"
+          in: "path"
+          required: true
+          description: "The id of the accounttype to remove"
+          schema:
+            type: integer
+            format: long
+      responses:
+        '204':
+          description: on success
+  /profile/documents:
+    get:
+      tags:
+        - "profile"
+      operationId: getCustomerDocuments
+      responses:
+        "200":
+          description: "List of documents for the customer"
+          content:
+            application/json:
+              schema:
+                $ref: "customer-information.yaml#/components/schemas/DocumentsDto"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "customer-information.yaml#/components/schemas/UnauthorizedError"
+  /products:
+    get:
+      summary: "List all available products"
+      operationId: listProducts
+      responses:
+        "200":
+          description: "List of available products"
+          content:
+            application/json:
+              schema:
+                $ref: "product.yaml#/components/schemas/ProductList"
+      tags:
+        - "subscription"
+      security: []
+  /products/{id}:
+    get:
+      summary: "Get a product based on its ID"
+      operationId: getProductById
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          description: "The ID of the product whose details we want to retrieve"
+          schema:
+            type: integer
+            format: long
+      responses:
+        "200":
+          description: "The product with the given id"
+          content:
+            application/json:
+              schema:
+                $ref: "product.yaml#/components/schemas/ProductDto"
+      tags:
+        - "subscription"
+      security: []
+  /subscriptions/eligibility:
+    post:
+      summary: "Check if a user has the correct customer type and account in order to take up a Product"
+      operationId: eligibilityCheck
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductIdList'
+      responses:
+        "200":
+          description: "List of available products"
+          content:
+            application/json:
+              schema:
+                $ref: "product.yaml#/components/schemas/EligibilityResultsList"
+      tags:
+        - "subscription"
+  /subscriptions:
+    get:
+      summary: "Get the customer's subscribed products"
+      operationId: subscriptions
+      responses:
+        "200":
+          description: "List of subscribed products"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionsDto"
+      tags:
+        - "subscription"
+    post:
+      summary: "Take up products"
+      operationId: productTakeUp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductIdList'
+      responses:
+        "200":
+          description: "List of subscribed products"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/SubscriptionsDto"
+                  - $ref: "product.yaml#/components/schemas/TakeUpResponse"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "customer-information.yaml#/components/schemas/UnauthorizedError"
+        "422":
+          description: "List of products and their failed checks"
+          content:
+            application/json:
+              schema:
+                $ref: "product.yaml#/components/schemas/TakeUpResponse"
+      tags:
+        - "subscription"
+  /subscriptions/{id}:
+    get:
+      summary: "Get a specific subscription"
+      operationId: subscription
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          description: "The ID of the subscription whose details we want to retrieve"
+          schema:
+            type: integer
+            format: long
+      responses:
+        "200":
+          description: "The given subscription"
+          content:
+            application/json:
+              schema:
+                $ref: "product.yaml#/components/schemas/SubscriptionDto"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "customer-information.yaml#/components/schemas/UnauthorizedError"
+        "404":
+          description: not found
+      tags:
+        - "subscription"
+    delete:
+      summary: "Delete a specific subscription"
+      operationId: removeSubscription
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          description: "The ID of the subscription whose details we want to delete"
+          schema:
+            type: integer
+            format: long
+      responses:
+        "204":
+          description: "Success"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "customer-information.yaml#/components/schemas/UnauthorizedError"
+        "404":
+          description: not found
+      tags:
+        - "subscription"
+
+components:
+  schemas:
+    CreateProfileRequest:
+      type: "object"
+      properties:
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        idNumber:
+          type: string
+        customerTypeId:
+          type: integer
+          format: long
+    DocumentRequest:
+      type: "object"
+      required:
+        - document
+        - type
+      properties:
+        document:
+          type: string
+          format: byte
+        type:
+          type: string
+          enum:
+            - "PDF"
+            - "PNG"
+            - "JPEG"
+    ProductIdList:
+      type: object
+      required:
+        - productIds
+      properties:
+        productIds:
+          type: array
+          items:
+            type: integer
+            format: long
+    SubscriptionsDto:
+      type: object
+      required:
+        - subscriptions
+      properties:
+        subscriptions:
+          $ref: "product.yaml#/components/schemas/SubscriptionList"
+  requestBodies:
+    profile:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateProfileRequest'
+    document:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DocumentRequest'
+  securitySchemes:
+    bearer_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

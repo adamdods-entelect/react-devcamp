@@ -1,0 +1,540 @@
+---
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: "Customer Information Store Service"
+  license:
+    name: "MIT"
+servers:
+  - url: "http://localhost:8080/v1"
+paths:
+  /customer:
+    get:
+      summary: "Get Customer by their Email Address"
+      operationId: getCustomerByEmailAddress
+      parameters:
+        - name: "emailAddress"
+          in: "query"
+          required: true
+          description: "The email address of the customer that we want to fetch"
+          schema:
+            type: string
+      tags:
+        - "customer"
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerDto"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        "404":
+          description: "User is not found in this system"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: "Register a new customer on the system"
+      operationId: "registerCustomer"
+      tags:
+        - "customer"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCustomerDto"
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerDto"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /customers:
+    get:
+      summary: "Fetch all customers registered on the system"
+      operationId: getCustomers
+      tags:
+        - "customer"
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomersDto"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /customer/{customerId}:
+    get:
+      tags:
+        - "customer"
+      operationId: getCustomerById
+      parameters:
+        - name: "customerId"
+          in: "path"
+          required: true
+          description: "The id of the customer that we want to fetch"
+          schema:
+            type: integer
+            format: long
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerDto"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /customer/{customerId}/accounts:
+    get:
+      tags:
+        - "customer"
+      operationId: getCustomerAccountsByCustomerId
+      parameters:
+        - name: "customerId"
+          in: "path"
+          required: true
+          description: "The id of the customer that we want to fetch"
+          schema:
+            type: integer
+            format: long
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountsDto"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /customer/{customerId}/accounts/{accountTypeId}:
+    post:
+      tags:
+        - "customer"
+      operationId: addCustomerAccountsToCustomerById
+      parameters:
+        - name: "customerId"
+          in: "path"
+          required: true
+          description: "The id of the customer who you want to add an account to"
+          schema:
+            type: integer
+            format: long
+        - name: "accountTypeId"
+          in: "path"
+          required: true
+          description: "The id of the account that you want to add to a customer"
+          schema:
+            type: integer
+            format: long
+      responses:
+        "204":
+          description: "Expected response to a valid request"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /customer/{customerId}/customerTypes/{customerTypeId}:
+    put:
+      tags:
+        - "customer"
+      operationId: updateCustomerTypeToCustomerById
+      parameters:
+        - name: "customerId"
+          in: "path"
+          required: true
+          description: "The id of the customer who you want to add a customer type to"
+          schema:
+            type: integer
+            format: long
+        - name: "customerTypeId"
+          in: "path"
+          required: true
+          description: "The id of the customer type that you want to add to the customer"
+          schema:
+            type: integer
+            format: long
+      responses:
+        "204":
+          description: "Expected response to a valid request"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /customer/{customerId}/documents:
+    get:
+      tags:
+        - "customer"
+      operationId: getCustomerDocumentsByCustomerId
+      parameters:
+        - name: "customerId"
+          in: "path"
+          required: true
+          description: "The id of the customer that we want to fetch"
+          schema:
+            type: integer
+            format: long
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentsDto"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - "customer"
+      operationId: addCustomerDocumentByCustomerId
+      parameters:
+        - name: "customerId"
+          in: "path"
+          required: true
+          description: "The id of the customer that we want to fetch"
+          schema:
+            type: integer
+            format: long
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentDto"
+      responses:
+        "200":
+          description: "Document ID as a reference to this document"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateDocumentResponse"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /customerTypes:
+    get:
+      tags:
+        - "customerTypes"
+      operationId: getCustomerTypes
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CustomerTypesDto"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - "customerTypes"
+      operationId: addCustomerTypes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerTypesDto"
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerTypesDto"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /accountTypes:
+    get:
+      tags:
+        - "accounts"
+      operationId: getAccountTypes
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AccountTypeDto"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - "accounts"
+      operationId: addAccountTypes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountTypeDto"
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountTypeDto"
+        "401":
+          description: "User is not authorized to access this resource"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  securitySchemes:
+    bearerAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UnauthorizedError:
+      type: "object"
+      description: "Access token is missing or invalid"
+    Error:
+      type: "object"
+      required:
+        - "code"
+        - "message"
+      properties:
+        code:
+          type: "integer"
+          format: "int32"
+        message:
+          type: "string"
+    CreateCustomerDto:
+      type: "object"
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        idNumber:
+          type: string
+        customerTypeId:
+          type: integer
+          format: long
+    CustomerDto:
+      type: "object"
+      required:
+        - "email"
+        - "firstName"
+        - "lastName"
+        - "idNumber"
+      properties:
+        id:
+          type: integer
+          format: long
+          readOnly: true
+        email:
+          type: string
+        password:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        idNumber:
+          type: string
+        customerType:
+          $ref: "#/components/schemas/CustomerTypesDto"
+        customerAccounts:
+          $ref: "#/components/schemas/AccountsDto"
+    CustomerTypesDto:
+      type: "object"
+      required:
+        - "description"
+        - "name"
+      properties:
+        id:
+          type: integer
+          format: long
+        name:
+          type: string
+        description:
+          type: string
+    AccountsDto:
+      type: array
+      items:
+        $ref: "#/components/schemas/AccountTypeDto"
+    AccountTypeDto:
+      type: "object"
+      required:
+        - description
+        - name
+        - id
+      properties:
+        id:
+          type: integer
+          format: long
+        name:
+          type: string
+        description:
+          type: string
+    CustomersDto:
+      type: array
+      items:
+        $ref: "#/components/schemas/CustomerDto"
+    DocumentsDto:
+      type: array
+      items:
+        $ref: "#/components/schemas/DocumentDto"
+    DocumentDto:
+      type: "object"
+      required:
+        - "id"
+        - "document"
+        - "type"
+      properties:
+        id:
+          type: integer
+          format: long
+        document:
+          type: string
+        type:
+          type: string
+          enum:
+            - "PDF"
+            - "PNG"
+            - "JPEG"
+    CreateDocumentResponse:
+      type: object
+      properties:
+        documentId:
+          type: integer
+          format: long
+security:
+  - bearerAuth: []

@@ -1,0 +1,103 @@
+version: '3'
+services:
+  devcamp-db:
+    image: postgres:17.4
+    container_name: devcamp-postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=user
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  devcamp-products:
+    depends_on:
+      - devcamp-db
+    image: devcamp-product-service:latest
+    container_name: devcamp-products-all-service
+    ports:
+      - "8080:8080"
+    networks:
+      default:
+        aliases:
+          - backend
+    volumes:
+      - app_logs:/logs
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    command: [
+      "--config.file=/etc/prometheus/prometheus.yml",
+      "--enable-feature=exemplar-storage",
+      "--web.enable-remote-write-receiver"
+    ]
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    volumes:
+      - ./compose/config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prom_data:/prometheus
+    profiles:
+      - o11y
+  grafana:
+    image: grafana/grafana:latest-ubuntu
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_FEATURE_TOGGLES_ENABLE=traceToMetrics,featureToggleAdminPage
+    volumes:
+      # Pre-load the data sources
+      - ./compose/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yaml:rw
+      # Pre-load the Hello Observability dashboard
+      - ./compose/grafana/dashboards:/etc/grafana/provisioning/dashboards
+    profiles:
+      - o11y
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    # tempo seems to take 30s to shut down. Who's got that much time?
+    stop_grace_period: 2s
+    volumes:
+      - ./compose/config/tempo-local.yaml:/etc/tempo.yaml
+      - tempo_data:/tmp/tempo
+    ports:
+      - "9411:9411"   # zipkin
+    profiles:
+      - o11y
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    command: [ "-config.file=/etc/promtail/config.yaml" ]
+    volumes:
+      - ./compose/config/promtail.yaml:/etc/promtail/config.yaml
+      # mount logs if you're running the server locally from e.g. intellij
+      - ./logs:/mnt/local/logs
+      # mount logs from the app's container with either "local" or "harbor" profile
+      - app_logs:/mnt/container/logs:ro
+      - tail_data:/tmp
+    profiles:
+      - o11y
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    profiles:
+      - o11y
+
+volumes:
+  db-data:
+  prom_data:
+  tempo_data:
+  tail_data:
+  app_logs:

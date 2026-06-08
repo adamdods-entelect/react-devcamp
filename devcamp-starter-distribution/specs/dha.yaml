@@ -1,0 +1,265 @@
+---
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: "Department of Home Affairs Checks"
+  license:
+    name: "MIT"
+servers:
+  - url: "http://localhost:8080/v1"
+paths:
+  /status/marital/{idNumber}:
+    get:
+      summary: "Determine the Marital Status of a citizen given that citizens ID Number"
+      operationId: getMaritalStatusById
+      tags:
+        - "dha"
+      parameters:
+        - name: "idNumber"
+          in: "path"
+          required: true
+          description: "The national id number of the citizen whose status we want to determine"
+          schema:
+            type: string
+      responses:
+        200:
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MaritalStatusList"
+    post:
+      summary: "Add in the marital status for a specific citizens ID Number"
+      operationId: addMaritalStatus
+      parameters:
+        - name: "idNumber"
+          in: "path"
+          required: true
+          description: "The national id number of the citizen whose status we want to add"
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaritalStatusDto'
+      responses:
+        204:
+          description: "Created Successfully"
+    delete:
+      summary: "Delete the marital status for a specific citizens ID Number"
+      operationId: deleteMaritalStatus
+      parameters:
+        - name: "idNumber"
+          in: "path"
+          required: true
+          description: "The national id number of the citizen whose status we want to add"
+          schema:
+            type: string
+      responses:
+        204:
+          description: "Deleted Successfully"
+  /status/duplicateId/{idNumber}:
+    get:
+      summary: "Determine if the citizen has a duplicate ID document issued"
+      operationId: getDuplicateIdDocumentStatusById
+      tags:
+        - "dha"
+      parameters:
+        - name: "idNumber"
+          in: "path"
+          required: true
+          description: "The national id number of the citizen whose status we want to determine"
+          schema:
+            type: string
+      responses:
+        200:
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DuplicateIDDocumentCheck"
+    post:
+      summary: "Add in the Identity Document status for a specific citizens ID Number"
+      operationId: addIdStatus
+      parameters:
+        - name: "idNumber"
+          in: "path"
+          required: true
+          description: "The national id number of the citizen whose status we want to delete"
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DuplicateIDDocumentCheck'
+      responses:
+        204:
+          description: "Created Successfully"
+    delete:
+      summary: "Delete the Duplicate ID status for a specific citizens ID Number"
+      operationId: deleteDuplicateIDStatus
+      parameters:
+        - name: "idNumber"
+          in: "path"
+          required: true
+          description: "The national id number of the citizen whose status we want to delete"
+          schema:
+            type: string
+      responses:
+        204:
+          description: "Deleted Successfully"
+  /status/living/{idNumber}:
+    get:
+      summary: "Determine if the citizen is alive or deceased"
+      operationId: getLivingStatusById
+      tags:
+        - "dha"
+      parameters:
+        - name: "idNumber"
+          in: "path"
+          required: true
+          description: "The national id number of the citizen whose status we want to determine"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LivingStatusDto"
+    post:
+      summary: "Add in the Living status for a specific citizens ID Number"
+      operationId: addLivingStatus
+      parameters:
+        - name: "idNumber"
+          in: "path"
+          required: true
+          description: "The national id number of the citizen whose status we want to add"
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LivingStatusDto'
+      responses:
+        204:
+          description: "Created Successfully"
+    delete:
+      summary: "Delete the Living status for a specific citizens ID Number"
+      operationId: deleteLivingStatus
+      parameters:
+        - name: "idNumber"
+          in: "path"
+          required: true
+          description: "The national id number of the citizen whose status we want to delete"
+          schema:
+            type: string
+      responses:
+        204:
+          description: "Deleted Successfully"
+components:
+  securitySchemes:
+    bearerAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    MaritalStatusList:
+      type: "object"
+      required:
+        - "currentStatus"
+        - "previousStatus"
+      properties:
+        currentStatus:
+          $ref: "#/components/schemas/MaritalStatusDto"
+        previousStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/MaritalStatusDto"
+    Error:
+      type: "object"
+      required:
+        - "code"
+        - "message"
+      properties:
+        code:
+          type: "integer"
+          format: "int32"
+        message:
+          type: "string"
+    UnauthorizedError:
+      type: "object"
+      description: "Access token is missing or invalid"
+    MaritalStatusDto:
+      type: "object"
+      required:
+        - "status"
+        - "effectiveFrom"
+        - "effectiveTo"
+      properties:
+        status:
+          $ref: "#/components/schemas/MaritalStatusEnum"
+        effectiveFrom:
+          type: "string"
+          format: "date"
+        effectiveTo:
+          type: "string"
+          format: "date"
+    MaritalStatusEnum:
+      type: "string"
+      enum:
+        - "Single"
+        - "Widowed"
+        - "Divorced"
+        - "Married"
+    DuplicateIDDocumentCheck:
+      type: "object"
+      required:
+        - "hasDuplicateId"
+      properties:
+        hasDuplicateId:
+            type: "boolean"
+        duplicateIdIssueDate:
+          type: "string"
+          format: "date"
+    LivingStatusDto:
+      type: object
+      required:
+        - "livingStatus"
+      properties:
+        livingStatus:
+          type: string
+          enum:
+            - "alive"
+            - "deceased"
+        deceasedDate:
+          type: "string"
+          format: "date"
+  responses:
+    401:
+      description: "User is not authorized to access this resource"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UnauthorizedError"
+    403:
+      description: "User is not authenticated"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UnauthorizedError"
+    default:
+      description: "unexpected error"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+security:
+  - bearerAuth: []

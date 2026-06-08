@@ -1,0 +1,123 @@
+---
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: "KYC Status Checks"
+  license:
+    name: "MIT"
+servers:
+  - url: "http://localhost:8080/v1"
+paths:
+  /kyc/{customerId}:
+    get:
+      summary: "Find out the KYC Status of a customer based off of their Id"
+      operationId: "getKYCStatusById"
+      tags:
+        - "kyc"
+      parameters:
+        - name: "customerId"
+          in: "path"
+          required: true
+          description: "The id of the customer whose KYC status we want to retrieve"
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KYC"
+    post:
+      summary: "Add in the KYC Status of a customer based off of their Id"
+      operationId: addKycStatus
+      parameters:
+        - name: "customerId"
+          in: "path"
+          required: true
+          description: "The customer id number of the customer whose status we want to add"
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KYC'
+      responses:
+        204:
+          description: "Created Successfully"
+    delete:
+      summary: "Delete the Living status for a specific citizens ID Number"
+      operationId: deleteKycStatus
+      parameters:
+        - name: "customerId"
+          in: "path"
+          required: true
+          description: "The customer id number of the customer whose status we want to delete"
+          schema:
+            type: string
+      responses:
+        204:
+          description: "Deleted Successfully"
+components:
+  securitySchemes:
+    bearerAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    KYC:
+      type: "object"
+      required:
+        - "primaryIndicator"
+        - "secondaryIndicator"
+        - "taxCompliance"
+      properties:
+        primaryIndicator:
+          type: "boolean"
+        secondaryIndicator:
+          type: "boolean"
+        taxCompliance:
+          $ref: "#/components/schemas/TaxComplianceStatus"
+    Error:
+      type: "object"
+      required:
+        - "code"
+        - "message"
+      properties:
+        code:
+          type: "integer"
+          format: "int32"
+        message:
+          type: "string"
+    UnauthorizedError:
+      type: "object"
+      description: "Access token is missing or invalid"
+    TaxComplianceStatus:
+      type: "string"
+      enum:
+        - "red"
+        - "amber"
+        - "green"
+  responses:
+    401:
+      description: "User is not authorized to access this resource"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UnauthorizedError"
+    403:
+      description: "User is not authenticated"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UnauthorizedError"
+    default:
+      description: "unexpected error"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+security:
+  - bearerAuth: []

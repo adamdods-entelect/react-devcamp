@@ -1,0 +1,266 @@
+---
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: "Customer Information Store Service"
+  license:
+    name: "MIT"
+servers:
+  - url: "http://localhost:8080/v1"
+paths:
+    /products:
+      get:
+        summary: "List all available products"
+        operationId: listProducts
+        responses:
+          "200":
+            description: "List of available products"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ProductList"
+        tags:
+          - "products"
+    /product/{id}:
+      get:
+        summary: "Get a product based on its ID"
+        operationId: getProductById
+        parameters:
+          - name: "id"
+            in: "path"
+            required: true
+            description: "The ID of the product whose details we want to retrieve"
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "200":
+            description: "List of available products"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ProductDto"
+        tags:
+          - "products"
+    /product/eligibility:
+      post:
+        summary: "Check if a user has the correct customer type and account in order to take up a Product"
+        operationId: eligibilityCheck
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRequest'
+        responses:
+          "200":
+            description: "List of available products"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/EligibilityResultsList"
+        tags:
+          - "products"
+        security:
+          - bearerAuth: [ ]
+    /product/take-up:
+      post:
+        summary: "Take up a Product"
+        operationId: productTakeUp
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRequest'
+        responses:
+          "200":
+            description: "List of available products"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/TakeUpResponse"
+        tags:
+          - "products"
+        security:
+          - bearerAuth: [ ]
+    /subscriptions/customer/{customerId}:
+      get:
+        summary: "List the products for a specific customer"
+        operationId: getCustomerSubscriptions
+        parameters:
+          - name: "customerId"
+            in: "path"
+            required: true
+            description: "The ID of the customer whose products we want to retrieve"
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "200":
+            description: "List of Customer Products"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/SubscriptionList"
+        tags:
+          - "product"
+        security:
+          - bearerAuth: [ ]
+    /subscriptions/{subscriptionId}:
+      delete:
+        summary: "List the products for a specific customer"
+        operationId: deleteCustomerSubscription
+        parameters:
+          - name: "subscriptionId"
+            in: "path"
+            required: true
+            description: "The ID of the customer whose products we want to retrieve"
+            schema:
+              type: integer
+              format: int64
+        responses:
+          "204":
+            description: "List of Customer Subscriptions"
+        tags:
+          - "product"
+        security:
+          - bearerAuth: [ ]
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UnauthorizedError:
+      type: "object"
+      description: "Access token is missing or invalid"
+    Error:
+      type: "object"
+      required:
+        - "code"
+        - "message"
+      properties:
+        code:
+          type: "integer"
+          format: "int32"
+        message:
+          type: "string"
+    ProductList:
+      items:
+        $ref: "#/components/schemas/ProductDto"
+    ProductDto:
+      type: "object"
+      required:
+        - description
+        - name
+        - id
+        - price
+        - imageUrl
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: double
+        imageUrl:
+          type: string
+    SubscriptionList:
+      items:
+        $ref: "#/components/schemas/SubscriptionDto"
+    SubscriptionDto:
+      type: object
+      required:
+        - subscriptionId
+        - product
+      properties:
+        subscriptionId:
+          type: long
+        product:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductDto"
+    ProductRequest:
+      type: object
+      required:
+        - customerId
+        - productIds
+      properties:
+        customerId:
+          type: integer
+          format: int64
+        productIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+    EligibilityResultsList:
+      type: array
+      items:
+        $ref: "#/components/schemas/EligibilityResultsDto"
+    EligibilityResultsDto:
+      type: object
+      required:
+        - isEligible
+        - productId
+      properties:
+        isEligible:
+          type: boolean
+        productId:
+          type: integer
+          format: int64
+        failureReasons:
+          type: array
+          items:
+            type: string
+    TakeUpResponse:
+      type: object
+      required:
+        - fulfilmentResultList
+      properties:
+        subscriptionId:
+          type: integer
+        fulfilmentResultList:
+          $ref: "#/components/schemas/FulfilmentResultList"
+    FulfilmentResultList:
+      type: array
+      items:
+        $ref: "#/components/schemas/FulfilmentResultDto"
+    FulfilmentResultDto:
+      type: object
+      required:
+        - checkName
+        - passed
+      properties:
+        checkName:
+          type: string
+        passed:
+          type: boolean
+        failureMessage:
+          type: string
+        productIds:
+          type: array
+          items:
+            type: long
+  responses:
+    "401":
+      description: "User is not authorized to access this resource"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UnauthorizedError"
+    "404":
+      description: "User is not found in this system"
+    default:
+      description: "unexpected error"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+

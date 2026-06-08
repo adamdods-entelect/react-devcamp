@@ -1,0 +1,106 @@
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: "Authentication Service"
+  license:
+    name: "MIT"
+servers:
+  - url: "http://localhost:8080/v1"
+tags:
+  - name: authentication-controller
+    description: Local Authentication API. Create new users and log in to get a JWToken
+paths:
+  /user:
+    post:
+      tags:
+        - authentication-controller
+      operationId: createUser
+      description: create a local user with login credentials. This user can then log in and create a customer profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        204:
+          description: successfully created user
+        400:
+          description: username already exists
+  /token:
+    post:
+      security:
+        - basic_auth: [ ]
+      tags:
+        - authentication-controller
+      operationId: token
+      responses:
+        "200":
+          description: OK
+          content:
+            'application/json':
+              schema:
+                $ref: "#/components/schemas/LoginResult"
+        "401":
+          description: Unauthorized - User does not have access to this resource
+          content:
+            'application/json':
+              schema:
+                $ref: "#/components/schemas/LoginResult"
+        403:
+          description: Forbidden - User is not Authenticated
+          content:
+            'application/json':
+              schema:
+                $ref: "#/components/schemas/LoginResult"
+  /token/validate:
+    post:
+      security:
+        - bearer_auth: [ ]
+      tags:
+        - authentication-controller
+      operationId: validateToken
+      responses:
+        "204":
+          description: OK
+        "401":
+          description: Unauthorized - User does not have access to this resource
+          content:
+            'application/json':
+              schema:
+                $ref: "#/components/schemas/LoginResult"
+        403:
+          description: Forbidden - User is not Authenticated
+          content:
+            'application/json':
+              schema:
+                $ref: "#/components/schemas/LoginResult"
+components:
+  securitySchemes:
+    basic_auth:
+      type: http
+      scheme: basic
+    bearer_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LoginResult:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: string
+        errorMessage:
+          type: string
+        loginAccessKey:
+          type: string
+

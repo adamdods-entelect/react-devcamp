@@ -1,0 +1,17 @@
+# Docker image exports / large binary artifacts
+*.tar
+
+# Node
+node_modules/
+dist/
+build/
+
+# Env / secrets
+.env
+.env.local
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
