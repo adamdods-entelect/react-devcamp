@@ -5,7 +5,7 @@ function RelatedProducts({ products }) {
             <div className="related-row">
                 {products.map((item) => (
                     <article key={item.id} className="related-card">
-                        <img src={item.imageUrl} alt="" className="related-card-image" />
+                        <img src={item.imageUrl || 'https://picsum.photos/200/150'} alt="" className="related-card-image" />
                         <p className="related-card-name">{item.name}</p>
                         <p className="related-card-price">R {item.price.toFixed(2)}</p>
                     </article>
