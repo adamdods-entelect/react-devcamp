@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 
 import '../App.css'
+import ProductPageSkeleton from '../components/ProductPageSkeleton'
 import TopBar from '../components/TopBar'
 import ProductImage from '../components/ProductImage'
 import ProductInfo from '../components/ProductInfo'
@@ -45,7 +46,7 @@ function ProductPage() {
   }, [])
 
   if (error) return <main>Failed to load product: {error}</main>
-  if (!product) return <main>Loading…</main>
+  if (!product) return <ProductPageSkeleton />
   return (
     <main>
       <TopBar name={product.name} />
