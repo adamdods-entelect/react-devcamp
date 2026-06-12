@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo-login.png'
+import useAuth from '../hooks/useAuth'
+import { requestToken } from '../services/authService'
 
 function SignInPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -11,37 +13,28 @@ function SignInPage() {
     formState: { isSubmitting, isValid },
   } = useForm({ mode: 'onChange' })
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [authError, setAuthError] = useState('')
 
   const onSubmit = async ({ email, password }) => {
     setAuthError('')
     try {
-      const res = await fetch('/v1/token', {
-        method: 'POST',
-        headers: {
-          Authorization: 'Basic ' + btoa(`${email}:${password}`),
-        },
-      })
-    
-      if (res.status === 401 || res.status === 403) {
-        //401 / 403 -> bad credentials
-        setAuthError('Incorrect email or password.')
+      const result = await requestToken(email, password)
+
+      if (!result.ok) {
+        if (result.reason === 'invalid') {
+          setAuthError('Incorrect email or password.')
+        } else if (result.reason === 'server') {
+          setAuthError('Something went wrong. Please try again later.')
+        } else {
+          setAuthError(result.message || 'Login failed. Please try again.')
+        }
         return
       }
 
-      if (!res.ok) {
-        // 5xx, proxy error (e.g. backend down), etc.
-      }
-
-      const result = await res.json()
-      if (!result.loginAccessKey) {
-        setAuthError(result.errorMessage || 'Login failed. Please try again.')
-        return
-      }
-
-      localStorage.setItem('accessToken', result.loginAccessKey)
+      login(result.token)
       navigate('/')
-    } catch{
+    } catch {
       setAuthError('Could not reach the server. Please try again.')
     }
   }

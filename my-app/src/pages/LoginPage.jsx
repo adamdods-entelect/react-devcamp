@@ -1,7 +1,16 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo-login.png'
+import useAuth from '../hooks/useAuth'
 
 function LoginPage() {
+  const navigate = useNavigate()
+  const { loginAsGuest } = useAuth()
+
+  const handleGuest = () => {
+    loginAsGuest()
+    navigate('/')
+  }
+
   return (
     <main className="flex min-h-svh flex-col bg-[#1a2238] px-6 text-white">
       {/* logo + wordmark, centered in the upper area */}
@@ -28,9 +37,9 @@ function LoginPage() {
           </Link>
         </p>
 
-        <Link to="/" className="block text-center text-sm text-gray-200">
+        <button onClick={handleGuest} className="block w-full text-center text-sm text-gray-200">
           Continue as guest
-        </Link>
+        </button>
       </div>
     </main>
   )

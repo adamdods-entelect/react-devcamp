@@ -1,8 +1,19 @@
+import { useNavigate } from 'react-router-dom'
+
 function TopBar({ name }) {
+    const navigate = useNavigate()
+
     return (
-        <header className="top-bar">
-            <button className="back-button" aria-label="Go back">←</button>
-            <h2 className="top-bar-title">{name}</h2>
+        <header className="flex items-center gap-3 px-4 py-3">
+            <button
+                type="button"
+                onClick={() => navigate(-1)}
+                aria-label="Go back"
+                className="text-xl"
+            >
+                ←
+            </button>
+            <h2 className="truncate text-[17px] font-semibold">{name}</h2>
         </header>
     )
 }

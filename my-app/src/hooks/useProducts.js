@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { fetchProducts } from '../services/productService'
 
 function useProducts() {
     const [products, setProducts] = useState(null)
@@ -6,17 +7,13 @@ function useProducts() {
 
     useEffect(() => {
         let cancelled = false
-        fetch('/client/v1/products')
-            .then((res) => {
-                if (!res.ok) throw new Error(`HTTP ${res.status}`)
-                return res.json()
-            })
+        fetchProducts()
             .then((data) => {
                 if (!cancelled) setProducts(data)
             })
-        .catch((err) => {
-            if (!cancelled) setError(err.message)
-        })
+            .catch((err) => {
+                if (!cancelled) setError(err.message)
+            })
 
         return () => {
             cancelled = true
