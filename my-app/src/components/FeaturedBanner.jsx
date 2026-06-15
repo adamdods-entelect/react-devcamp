@@ -18,14 +18,21 @@ function FeaturedBanner({ loading }) {
       {offers.map((offer) => (
         <div
           key={offer.id}
-          className="relative flex h-44 w-[85%] shrink-0 flex-col justify-end rounded-2xl bg-gradient-to-br from-gray-700 to-gray-900 p-4 text-white"
+          className="relative flex h-44 w-[85%] shrink-0 flex-col justify-end overflow-hidden rounded-2xl p-4 text-white"
         >
-          <span className="mb-2 w-fit rounded bg-blue-500 px-2 py-1 text-xs font-semibold">
+          <img
+            src={offer.image || 'https://picsum.photos/300'}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/10" />
+
+          <span className="relative mb-2 w-fit rounded bg-blue-500 px-2 py-1 text-xs font-semibold">
             {offer.discount}
           </span>
-          <h2 className="text-lg font-bold">{offer.title}</h2>
-          <div className="mt-1 flex items-center justify-between">
-            <p className="text-sm text-gray-300">{offer.subtitle}</p>
+          <h2 className="relative text-lg font-bold">{offer.title}</h2>
+          <div className="relative mt-1 flex items-center justify-between">
+            <p className="text-sm text-gray-200">{offer.subtitle}</p>
             <button className="rounded-full border border-white/60 px-3 py-1 text-xs">
               View offers
             </button>
