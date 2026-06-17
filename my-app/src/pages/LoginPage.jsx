@@ -17,7 +17,7 @@ function LoginPage() {
       <div className="flex flex-1 flex-col items-center justify-center">
         <img src={logo} alt="" className="mb-4 h-16 w-16 object-contain" />
         <p className="text-2xl tracking-wide">
-          InsureTech<span className="font-bold">Guard</span>
+         InsureTech<span className="font-bold">Guard</span>
         </p>
       </div>
 

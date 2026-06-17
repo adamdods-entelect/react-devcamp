@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import LoadingPage from './pages/LoadingPage'
 import LoginPage from "./pages/LoginPage"
 import SignInPage from './pages/SignInPage'
+import KycPage from './pages/KycPage'
 import HomePage from './pages/HomePage'
 import ProductPage from './pages/ProductPage'
 
@@ -19,26 +20,27 @@ function App() {
   if (loading) return <LoadingPage />
   return (
     <Routes>
-  <Route path="/login" element={<LoginPage />} />
-  <Route path="/login/signin" element={<SignInPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/login/signin" element={<SignInPage />} />
+      <Route path="/kyc" element={<KycPage />} />
 
-  <Route
-    path="/"
-    element={
-      <ProtectedRoute>
-        <HomePage />
-      </ProtectedRoute>
-    }
-  />
-  <Route
-    path="/products/:id"
-    element={
-      <ProtectedRoute>
-        <ProductPage />
-      </ProtectedRoute>
-    }
-  />
-</Routes>
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/products/:id"
+        element={
+          <ProtectedRoute>
+            <ProductPage />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   )
 }
 
