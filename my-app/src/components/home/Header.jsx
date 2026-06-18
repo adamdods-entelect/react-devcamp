@@ -1,4 +1,4 @@
-import headerImg from '../assets/home-header.png'
+import headerImg from '../../assets/home-header.png'
 
 function Header() {
   return <img src={headerImg} alt="InsureTechGuard" className="w-full" />

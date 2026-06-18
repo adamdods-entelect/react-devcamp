@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronRight, CheckCircle2, Loader2, AlertCircle } from 'lucide-react'
 import kycIllustration from '../assets/kyc.png'
-import UploadOptionsSheet from '../components/UploadOptionsSheet'
-import CameraCaptureFlow from '../components/CameraCaptureFlow'
-import PhotoUploadFlow from '../components/PhotoUploadFlow'
+import UploadOptionsSheet from '../components/kyc/UploadOptionsSheet'
+import CameraCaptureFlow from '../components/kyc/CameraCaptureFlow'
+import PhotoUploadFlow from '../components/kyc/PhotoUploadFlow'
 import { uploadKycDocument } from '../services/kycStorage'
 
 const DOCS = {
@@ -77,12 +77,22 @@ function KycPage() {
     }
 
     const handleUploadPhoto = () => {
-        setUpload({ doc: sheetDoc, accept: 'image/*', noun: sheetDoc === 'selfie' ? 'selfie' : 'photo' })
+        setUpload({
+            doc: sheetDoc,
+            accept: 'image/*',
+            noun: sheetDoc === 'selfie' ? 'selfie' : 'photo',
+            prep: sheetDoc === 'residence' ? DOCS.residence.camera.prep : undefined,
+        })
         setSheetDoc(null)
     }
 
     const handleUploadDocument = () => {
-        setUpload({ doc: sheetDoc, accept: 'application/pdf,image/*', noun: 'document' })
+        setUpload({
+            doc: sheetDoc,
+            accept: 'application/pdf,image/*',
+            noun: 'document',
+            prep: DOCS.residence.camera.prep,
+        })
         setSheetDoc(null)
     }
 
@@ -165,6 +175,7 @@ function KycPage() {
                 <PhotoUploadFlow
                     noun={upload.noun}
                     accept={upload.accept}
+                    prep={upload.prep}
                     onSubmit={handleUploadSubmit}
                     onClose={() => setUpload(null)}
                     onSwitchToCamera={switchToCamera}

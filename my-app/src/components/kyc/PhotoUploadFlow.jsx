@@ -2,12 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, Camera, FileText } from 'lucide-react'
 import PrepSheet from './PrepSheet'
 
-const PREP_TIPS = [
-    { title: 'Start with good lighting', body: 'Ensure the photo is well-lit space and clear.' },
-    { title: 'Avoid face obstructions', body: 'Ensure that nothing covers your face. Eyeglasses are okay.' },
-]
+const DEFAULT_PREP = {
+    title: 'Prep for your photo',
+    tips: [
+        { title: 'Start with good lighting', body: 'Ensure the photo is well-lit space and clear.' },
+        { title: 'Avoid face obstructions', body: 'Ensure that nothing covers your face. Eyeglasses are okay.' },
+    ],
+}
 
-function PhotoUploadFlow({ noun = 'photo', accept = 'image/*', onSubmit, onClose, onSwitchToCamera }) {
+function PhotoUploadFlow({ noun = 'photo', accept = 'image/*', prep = DEFAULT_PREP, onSubmit, onClose, onSwitchToCamera }) {
     const inputRef = useRef(null)
     const [phase, setPhase] = useState('prep') // prep | review
     const [file, setFile] = useState(null)
@@ -82,7 +85,7 @@ function PhotoUploadFlow({ noun = 'photo', accept = 'image/*', onSubmit, onClose
             <input ref={inputRef} type="file" accept={accept} className="hidden" onChange={handleFile} />
 
             {phase === 'prep' && (
-                <PrepSheet title="Prep for your photo" tips={PREP_TIPS} onContinue={openPicker} onClose={onClose} />
+                <PrepSheet title={prep.title} tips={prep.tips} onContinue={openPicker} onClose={onClose} />
             )}
         </div>
     )

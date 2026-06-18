@@ -69,7 +69,7 @@ Each card reflects its **upload status**: `idle` (chevron) → `uploading`
 | `src/pages/KycPage.jsx`                   | The hub screen + orchestration of sheets, camera, upload, status        |
 | `src/components/UploadOptionsSheet.jsx`   | Bottom sheet: "Take photo" / "Upload photo" / (optional) "Upload document" |
 | `src/components/CameraCaptureFlow.jsx`    | Configurable camera flow (oval/rect) using `react-webcam`               |
-| `src/components/PhotoUploadFlow.jsx`      | File-picker flow with prep + review                                     |
+| `src/components/PhotoUploadFlow.jsx`      | File-picker flow with prep + revieSow                                     |
 | `src/components/PrepSheet.jsx`            | Shared "Prep for your photo/selfie" instructions sheet                  |
 | `src/App.jsx`                             | Added the `/kyc` route                                                   |
 

@@ -1,12 +1,12 @@
 import { useParams } from 'react-router-dom'
 
 import useProduct from '../hooks/useProduct'
-import ProductPageSkeleton from '../components/ProductPageSkeleton'
-import TopBar from '../components/TopBar'
-import ProductImage from '../components/ProductImage'
-import ProductInfo from '../components/ProductInfo'
-import RelatedProducts from '../components/RelatedProducts'
-import PriceBar from '../components/PriceBar'
+import ProductPageSkeleton from '../components/product/ProductPageSkeleton'
+import TopBar from '../components/product/TopBar'
+import ProductImage from '../components/product/ProductImage'
+import ProductInfo from '../components/product/ProductInfo'
+import RelatedProducts from '../components/product/RelatedProducts'
+import PriceBar from '../components/product/PriceBar'
 
 function ProductPage() {
   const { id } = useParams()

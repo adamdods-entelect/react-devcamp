@@ -1,10 +1,10 @@
 import useProducts from '../hooks/useProducts'
-import ProductCard from '../components/ProductCard'
-import FeaturedBanner from '../components/FeaturedBanner'
-import Header from '../components/Header'
+import ProductCard from '../components/home/ProductCard'
+import FeaturedBanner from '../components/home/FeaturedBanner'
+import Header from '../components/home/Header'
 import { useState, useMemo } from 'react'
-import CategoryFilter from '../components/CategoryFilter'
-import BottomNav from '../components/BottomNav'
+import CategoryFilter from '../components/home/CategoryFilter'
+import BottomNav from '../components/home/BottomNav'
 
 const categories = ['All', 'Insurance', 'Investments', 'Other']
 
