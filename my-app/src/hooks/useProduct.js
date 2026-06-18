@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { fetchProduct, fetchProducts } from '../services/productService'
+import { getCategory } from '../utils/category'
 
 // fallback content for fields the catalogue may not return
 const defaults = {
@@ -44,7 +45,14 @@ function useProduct(id) {
     // related products are best-effort: a failure here must not blank the page
     fetchProducts()
       .then((list) => {
-        if (!cancelled) setRelated(list.filter((p) => p.id !== Number(id)))
+        if (cancelled) return
+        const current = list.find((p) => p.id === Number(id))
+        const others = list.filter((p) => p.id !== Number(id))
+        // prefer products in the same category; fall back to all others if too few
+        const sameCategory = current
+          ? others.filter((p) => getCategory(p.name) === getCategory(current.name))
+          : others
+        setRelated(sameCategory.length >= 2 ? sameCategory : others)
       })
       .catch(() => {})
 

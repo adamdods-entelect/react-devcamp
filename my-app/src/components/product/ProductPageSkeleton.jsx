@@ -1,6 +1,6 @@
 function ProductPageSkeleton() {
   return (
-    <main className="animate-pulse">
+    <main className="mx-auto max-w-5xl animate-pulse">
       {/* top bar: real back arrow + title placeholder */}
       <header className="flex items-center gap-3 p-4">
         <span className="text-xl text-gray-700">←</span>

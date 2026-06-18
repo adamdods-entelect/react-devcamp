@@ -16,15 +16,21 @@ function ProductPage() {
   if (!product) return <ProductPageSkeleton />
 
   return (
-    <main className="pb-[88px]">
+    <main className="mx-auto max-w-5xl pb-[88px]">
       <TopBar name={product.name} />
-      <ProductImage imageUrl={product.imageUrl} discount={product.discount} />
-      <ProductInfo
-        name={product.name}
-        description={product.description}
-        benefits={product.benefits}
-        requirements={product.requirements}
-      />
+      <div className="md:flex md:items-start md:gap-6">
+        <div className="md:w-1/2">
+          <ProductImage imageUrl={product.imageUrl} discount={product.discount} />
+        </div>
+        <div className="md:flex-1">
+          <ProductInfo
+            name={product.name}
+            description={product.description}
+            benefits={product.benefits}
+            requirements={product.requirements}
+          />
+        </div>
+      </div>
       <RelatedProducts products={related} />
       <PriceBar price={product.price} />
     </main>

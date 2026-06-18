@@ -16,12 +16,10 @@
 
 body {
   margin: 0;
-  background: #e9e9ee; /* grey behind the phone, so the column stands out */
+  background: var(--bg);
 }
 
 #root {
-  max-width: 420px;   /* mobile-first: constrain to a phone width */
-  margin: 0 auto;     /* centre it on the screen */
   min-height: 100svh;
   background: var(--bg);
 }

@@ -2,9 +2,9 @@ import { X } from 'lucide-react'
 
 function PrepSheet({ title, tips, continueLabel = 'Got it', onContinue, onClose }) {
     return (
-        <div className="absolute inset-0 z-10 flex items-end">
+        <div className="absolute inset-0 z-10 flex items-end sm:items-center sm:justify-center">
             <div className="absolute inset-0 bg-black/50" />
-            <div className="relative w-full rounded-t-3xl bg-white px-6 pb-8 pt-4">
+            <div className="relative w-full rounded-t-3xl bg-white px-6 pb-8 pt-4 sm:max-w-md sm:rounded-3xl">
                 <button onClick={onClose} className="mb-2" aria-label="Close">
                     <X className="h-6 w-6" />
                 </button>

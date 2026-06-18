@@ -10,7 +10,7 @@ const items = [
 
 function BottomNav() {
   return (
-    <nav className="fixed inset-x-0 bottom-0 mx-auto flex max-w-[420px] justify-around border-t border-gray-200 bg-white py-2">
+    <nav className="fixed inset-x-0 bottom-0 mx-auto flex max-w-[420px] justify-around border-t border-gray-200 bg-white py-2 md:hidden">
       {items.map(({ to, label, Icon }) => (
         <NavLink
           key={to}

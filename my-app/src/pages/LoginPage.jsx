@@ -22,7 +22,7 @@ function LoginPage() {
       </div>
 
       {/* actions pinned toward the bottom */}
-      <div className="space-y-5 pb-12">
+      <div className="mx-auto w-full max-w-sm space-y-5 pb-12">
         <Link
           to="/login/signin"
           className="block w-full rounded-full bg-gradient-to-r from-blue-600 to-cyan-400 py-3 text-center font-semibold text-white"

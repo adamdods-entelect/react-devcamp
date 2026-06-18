@@ -62,7 +62,7 @@ function PhotoUploadFlow({ noun = 'photo', accept = 'image/*', prep = DEFAULT_PR
             </div>
 
             {phase === 'review' && (
-                <div className="p-6">
+                <div className="mx-auto w-full max-w-sm p-6">
                     <p className="text-center font-semibold text-white">Review your {noun}</p>
                     <p className="mt-1 text-center text-sm text-white/60">
                         Make sure the document is clear and all details are visible

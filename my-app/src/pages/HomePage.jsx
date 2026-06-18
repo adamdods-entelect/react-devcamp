@@ -1,3 +1,4 @@
+import TopNav from '../components/home/TopNav'
 import useProducts from '../hooks/useProducts'
 import ProductCard from '../components/home/ProductCard'
 import FeaturedBanner from '../components/home/FeaturedBanner'
@@ -5,14 +6,7 @@ import Header from '../components/home/Header'
 import { useState, useMemo } from 'react'
 import CategoryFilter from '../components/home/CategoryFilter'
 import BottomNav from '../components/home/BottomNav'
-
-const categories = ['All', 'Insurance', 'Investments', 'Other']
-
-function getCategory(name) {
-  if (/insurance/i.test(name)) return 'Insurance'
-  if (/investment/i.test(name)) return 'Investments'
-  return 'Other'
-}
+import { categories, getCategory } from '../utils/category'
 
 function HomePage() {
   const { products, loading, error } = useProducts()
@@ -26,8 +20,11 @@ function HomePage() {
 
   return (
     <>
-      <Header />
-      <main className="px-4 pb-20">
+      <TopNav />
+      <div className="md:hidden">
+        <Header />
+      </div>
+      <main className="mx-auto max-w-6xl px-4 pb-20 md:pb-8">
         <FeaturedBanner loading={loading} />
 
         <h1 className="mb-3 mt-4 text-2xl font-bold">Discover</h1>
@@ -50,7 +47,7 @@ function HomePage() {
       )}
 
       {products && (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {visibleProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

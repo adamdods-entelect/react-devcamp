@@ -9,7 +9,7 @@ function ProductImage({ imageUrl, discount }) {
             <img
                 src={imageUrl || 'https://picsum.photos/400/300'}
                 alt=""
-                className="block h-[260px] w-full rounded-lg object-cover"
+                className="block h-[260px] w-full rounded-lg object-cover md:h-[340px]"
             />
         </div>
     )

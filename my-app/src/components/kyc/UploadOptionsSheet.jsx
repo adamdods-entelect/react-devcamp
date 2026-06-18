@@ -4,9 +4,9 @@ function UploadOptionsSheet({ open, docLabel, onUseCamera, onUploadPhoto, onUplo
     if (!open) return null
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center" role="dialog" aria-modal="true">
             <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-            <div className="relative w-full rounded-t-3xl bg-white px-6 pb-10 pt-6">
+            <div className="relative w-full rounded-t-3xl bg-white px-6 pb-10 pt-6 sm:max-w-md sm:rounded-3xl sm:pb-6">
                 <h2 className="text-lg font-bold">Upload {docLabel}</h2>
 
                 <button onClick={onUseCamera} className="mt-6 flex w-full items-center gap-4 text-left">

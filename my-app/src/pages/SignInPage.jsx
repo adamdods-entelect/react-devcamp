@@ -49,7 +49,7 @@ function SignInPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-12 space-y-4" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="mx-auto mt-12 w-full max-w-sm space-y-4" noValidate>
         {/* email */}
         <div className="relative">
           <label
