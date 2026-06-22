@@ -1,0 +1,1092 @@
+Business Requirement Specification:
+  Financial Services - Product Shop
+
+PRIVATE AND CONFIDENTIAL
+This document contains information, which is the property of the Entelect Group
+and Entelect Software (Pty) Ltd. No part of this document may be reproduced,
+transmitted or divulged to third parties in any form or by any means, without
+written permission from the owner.
+
+Financial Services ­ Product Shop       2023                                     Page 1 of 31
+                                   Confidential
+Table of Contents
+
+1 Project Overview 5
+
+2 Use Case Diagram 5
+
+3 System Diagrams 6
+
+3.1 System Context Diagram..........................................................................................................6
+
+3.2 System Container Diagram ......................................................................................................7
+
+4 User Stories 7
+
+5 Functional Requirements 8
+
+6 Process Flow                     10
+
+6.1 Flow Description .....................................................................................................................10
+
+7 Deployment 13
+
+8 Service Specifications 13
+
+8.1 authentication Service ...........................................................................................................13
+
+8.2 KYC Service ..............................................................................................................................13
+   8.2.1 KYC Check ..................................................................................................................................................14
+
+8.3 Department of Home Afairs Service......................................................................................14
+   8.3.1 Marital Status Check .................................................................................................................................14
+   8.3.2 Duplicate ID Status Check ........................................................................................................................15
+   8.3.3 Living / Deceased Status Check................................................................................................................16
+
+8.4 Credit Check Service ...............................................................................................................16
+   8.4.1 Credit Check ..............................................................................................................................................16
+
+8.5 Fraud Service...........................................................................................................................17
+   8.5.1 Fraud Check...............................................................................................................................................17
+
+8.6 Customer Information Store..................................................................................................18
+   8.6.1 Fetch Customers .......................................................................................................................................18
+   8.6.2 Fetch Customer Information ....................................................................................................................19
+   8.6.3 Register Customer ....................................................................................................................................19
+   8.6.4 Fetch Account Types .................................................................................................................................20
+   8.6.5 Add Account Types ...................................................................................................................................21
+   8.6.6 Add Account Types to Customer .............................................................................................................22
+   8.6.7 Fetch Customer Documents ....................................................................................................................22
+   8.6.8 Upload Customer Document ...................................................................................................................23
+   8.6.9 Get Customer Types .................................................................................................................................23
+   8.6.10 Create Customer Types ............................................................................................................................24
+   8.6.11 Update Customer with Customer Type...................................................................................................25
+
+Financial Services ­ Product Shop           2023     Page 2 of 31
+                                       Confidential
+  8.7 service bus...............................................................................................................................25
+9 Databases 26
+
+      9.1.1 ERD's ..........................................................................................................................................................26
+
+10 Technical Setup 27
+11 Reference Documents 27
+12 Document Details 27
+
+  12.1 Distribution List ..................................................................................................................27
+  12.2 Document History ...............................................................................................................27
+Appendix A: Detailed Process Flow 28
+
+Financial Services ­ Product Shop       2023     Page 3 of 31
+                                   Confidential
+Glossary of Terms
+
+Term                 Definition
+Product Eligibility  Criteria used to determine if the customer's profile meets the requirements to take up a
+                     given product
+Fulfilment           The process of ensuring that the relevant checks have taken place in order to ensure that
+                     a product can be taken out by the person that applied for it
+
+Glossary of Acronyms
+
+Term                               Definition
+DHA                                Department of Home Affairs
+KYC                                Know Your Customer
+
+Financial Services ­ Product Shop       2023                   Page 4 of 31
+                                   Confidential
+1 Project Overview
+
+The project involves implementing a digital product shop to allow users to select and take-up products offered by
+a financial services institution. This encompasses profile creation, various eligibility checks, and fulfilment, and will
+require the integration of the solution into multiple existing systems.
+
+2 Use Case Diagram
+
+                                   Figure 2-1Use Case Diagram for the Product Sales Platform
+
+Financial Services ­ Product Shop       2023                                                  Page 5 of 31
+                                   Confidential
+3 System Diagrams
+
+3.1 SYSTEM CONTEXT DIAGRAM
+
+Financial Services ­ Product Shop       2023     Page 6 of 31
+                                   Confidential
+                                               Figure 3-1System Context Diagram for the Product Sales Platform
+
+3.2 SYSTEM CONTAINER DIAGRAM
+
+4 User Stories                                             Figure 3-2 Container Diagram for the Product Sales Platform
+
+User Story  User Story Name  User Story Description
+     US1    Log In           As an existing user I want to log in so that I can browse and take up products
+     US2    Create Profile   As a new user I want to be create a profile so that I can browse and take up products
+     US3    Take up Product  As a user I want to browse and take up products so that I'm able to use my selected product
+
+            Financial Services ­ Product Shop       2023                                                        Page 7 of 31
+                                               Confidential
+US4  View Products                As an existing user I want to view available products so that I can select a product to take up
+
+US5  Check if eligible            As an existing user I want to have my eligibility checked so that I can take up a product
+
+US6  Open Account                 As an existing user I want to have my account opened so that I can take up a product
+
+US7  Do customer checks As an existing user I want to have checks done so that I can take up a product
+
+US8  Generate Contract As an existing user I want to have my contract generated so that I am aware of the product terms
+
+5 Functional Requirements
+
+User Story               Functional Requirement                 System Requirements
+US1 ­ Log In
+                         FR1 A user must be able to log into SR1 · A customer information store must hold customer profile information to facilitate the
+US2 ­ Create Profile
+                         product shop                           log in, and a customer should have a unique identifier
+US3 ­ Take Up
+Product                                                         · This must be exposed via a web service
+US4 ­ View Products
+                                                                · Any user not logged in can trigger the login process, but only registered users must be
+US5 ­ Check if Eligible
+                                                                able to log in successfully
+
+                         FR2 An unregistered user must be SR2 · New users must be able to be added to customer information store using a web service
+
+                         able to create a profile               · Previously registered users with the same identifier should be prevented from re-
+
+                                                                registering
+
+                         The requirements for this user story are broken down in US4 - US8 below
+
+                         FR3 A user must be able to view a SR3 · A product database must hold details for each product
+
+                         list of available products             · The product list should be query-able via a web service
+
+                         FR4 A user must be able to select a SR4 · A product's details must be query-able via a web service
+
+                         product for further information
+
+                         FR5 The system must verify the         SR5 · Product eligibility criteria must be stored in the product database and access via a web
+
+                         user's eligibility for their selected  service
+
+                         product                                · Customer information must be queried and checked against the product eligibility
+
+                                                                criteria to determine eligibility
+
+                                                                · A customer would be considered eligible if the following criteria match between the
+
+                                                                customer and the product:
+
+                         Financial Services ­ Product Shop           2023                                                    Page 8 of 31
+                                                                Confidential
+US6 ­ Open Account  FR6 An account must be                                        o The customer must have one of the qualifying accounts currently opened
+                    provisionally opened for the user                                  against their profile
+US7 ­ Do Customer   FR7 The system must initiate one
+Checks              or more checks to determine if the                            o The customer's Customer Type should match the customer type of the
+                    customer can take up the product                                   product that they are trying to take up.
+
+                                                        SR6 · Integration must be done with the product house system that owns the selected
+                                                                      product to open the customer's account in a pending state
+
+                                                        SR7 · A request queue and processor must be implemented to store and process fulfilment
+                                                                      request messages
+
+                                                                 · Rules must be implemented to determine the fulfilment type (A, B, or C) based on the
+                                                                      product, and indicated on the messages for the correct set of checks to be initiated
+
+                                                                 · A response message processor must relay the results of the checks back to the initiating
+                                                                      system
+
+                                                        SR8 · Integration must be done into a KYC service to do customer KYC verification
+                                                                  This service is documented in authentication Service
+                                                                 This service generates a JWT Token to be used for system-to-system integrations. You will
+                                                                 generate the token with your applications username & password.
+
+                                                        Authentication Mechanism: Basic Auth
+                                                        URL: localhost:8080
+
+                                                        Request:
+
+                                                        curl --location --request POST 'http://localhost:8080/token' \
+                                                        --header 'Authorization: Basic dXNlcjpwYXNzd29yZA==' \
+                                                        --header 'Cookie: XSRF-TOKEN=f41ef9ef-75f2-49e8-8142-97e6512da66d'
+
+                                                        Response:
+
+                    Financial Services ­ Product Shop                  2023                   Page 9 of 31
+                                                                  Confidential
+US8 ­ Generate  FR8 A contract must be generated   SR9   eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDQ1Mjk5Mywia
+Contract        and returned to the user                 WF0IjoxNjkwNDQ5MzkzfQ.zy2ATKNuU_sVlwqQyvYNCdCcexrVH8epjAtGddaCQWhkT9kOfkO
+                                                   SR10  4KR9Qoj0EjkMIQRsyQL90S5otjtfiRQT8_eLPCoWyb_ByP5nHzEFP5YwVRYzAmU8fTq-
+                                                   SR11  L6b1wUsFVF3HjzN1XVmNsF1zT5FH-pI8asTWdv83B3y-wDbtMd_FYEKjI3gnR_dsrtU0-
+                                                   SR12  L9UXf41gRdPMWXmNLaDt6au0m7mSU3d37IEiIXdCNorFnmcN2mp6c34UKdJUXdIyItb0e9F8
+                                                         1N-
+                                                         rcqPKrtjtoTnOEltdgTZJ13Ca_q3x9iO_8xfFhfz4AvJjOQn1_qswr9JxcHyXXbJG6F9PDhg8MlIDJQ
+                                                         KYC Service.
+                                                         · Integration must be done into the department of home affairs to do the following
+
+                                                             identity checks:
+                                                              o Marital status
+                                                              o Duplicate ID
+                                                              o Living/Deceased status
+                                                         This service is documented in Department of Home Afairs Service.
+                                                         · Integration must be done into a fraud service to confirm that the customer has not
+                                                             participated in fraudulent activities
+                                                         This service is documented in Error! Reference source not found..
+                                                         · Integration must be done into a Credit Check service to confirm the customer is in good
+                                                             credit standing
+                                                         This service is documented in Error! Reference source not found..
+                                                         · If customer checks all pass, a PDF contract must be generated from the customer's
+                                                             profile data and product information
+                                                         · If any customer check failed, a failure reason should be provided to the customer
+
+                Financial Services ­ Product Shop             2023     Page 10 of 31
+                                                         Confidential
+6 Process Flow
+
+                                                        Figure 6-1BPMN Diagram of the Product Onboarding and Fulfilment Flow
+
+6.1 FLOW DESCRIPTION
+
+Basic flow scenario   1 The user selects and opens the product catalogue to browse available products, the system retrieves and displays available
+                             products from the Product Catalogue database.
+
+                      2 The user selects a product and the system displays details for the product, such as:
+                                   · Description
+                                   · Eligibility Criteria
+                                   · Pricing
+                                   · Benefits
+
+                             These details are retrieved from the Product Catalogue database.
+
+                     Financial Services ­ Product Shop       2023                                                             Page 11 of 31
+                                                        Confidential
+Variation: Not Signed In     3    The user opts to take-up the selected product, which first checks if the user is signed in
+                             4    If the user is signed in their product eligibility is verified
+Variation: Not Registered    5    If the user is eligible, the customer profile is updated with their new product, in a pending state
+Variation: Not Eligible      6    The account associated with the product is then opened, in a pending state
+Variation: Type B            7    The customer fulfilment process is then triggered
+                             8    Based on the product, the fulfilment type is queried. Currently there are two types: Type A and Type B and Type C. If multiple
+Variation: Type C                 products are taken up that have differing flows, the flow with the most checks is the one that should be executed. These checks
+                             9    only need to be done once and not once pre product taken up.
+                                  If Type A, the checks for Type A are done against the customer's profile:
+                            10
+                            11         · KYC check
+                            4.1   This is done asynchronously with a workflow process while the user is informed that feedback will be provided when complete.
+                            4.2   The system receives an indication that the checks are complete
+                            4.3   If the checks have passed, a product contract is generated for the user to view in PDF format
+                            4.4   The user is not signed in, present the sign-in screen
+                           4.2.1  The user is registered and enters their credentials
+                            5.1   The system verifies their credentials from the Customer Information Store and completes the sign in process
+                            9.1   The system redirects the user to Product Take-up, where the user confirms their choice
+                                  The user is not registered and is directed to create a profile. The Customer Information Store stores this new profile
+                           9.1.1  If the user is not eligible, the user is informed and the process ends
+                                  If Type B, the checks for Type B are done against the customer's profile:
+
+                                       · KYC Check
+                                       · Fraud Check
+                                       · Living Status Check (DHA)
+                                       · Duplicate ID Check
+                                  If Type C, the checks for Type C are done against the customer's profile:
+                                       · KYC Check
+                                       · Fraud Check
+                                       · Living Status Check (DHA)
+                                       · Duplicate ID Check (DHA)
+
+Financial Services ­ Product Shop       2023     Page 12 of 31
+                                   Confidential
+Variation: Checks Fail  11.1       · Credit Check
+                                   · Marital Status Check (DHA)
+                              If one of the checks fails, the user is informed and the process ends
+
+                        Financial Services ­ Product Shop       2023                                 Page 13 of 31
+                                                           Confidential
+7 Deployment
+
+All the applications will be deployed as Containers on a platform to be determined in the future. For now, you will
+just need to containerise your application using a Docker file. The supporting services that have been built out
+have a Docker Compose file that can be used to start up the environment. You should add your services to this
+compose file and all the containers should be able to run using the single compose file.
+
+8 Service Specifications
+
+These services are not maintained by various other teams within the organisation. Reliability, as a result, can be
+unpredictable. We have seen that these services work approximately 80% of the time. You need to ensure that
+your code is robust enough to handle this scenario, and ensure that the customers application can still be
+processed. The OpenAPI specs and WSDL files for the services will be shared along with this requirements
+document.
+
+8.1 AUTHENTICATION SERVICE
+
+This service generates a JWT Token to be used for system-to-system integrations. You will generate the token with
+your applications username & password.
+
+Authentication Mechanism: Basic Auth
+URL: localhost:8080
+
+Request:
+
+curl --location --request POST 'http://localhost:8080/token' \
+--header 'Authorization: Basic dXNlcjpwYXNzd29yZA==' \
+--header 'Cookie: XSRF-TOKEN=f41ef9ef-75f2-49e8-8142-97e6512da66d'
+
+Response:
+
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDQ1Mjk5MywiaWF0IjoxNjkwNDQ5M
+zkzfQ.zy2ATKNuU_sVlwqQyvYNCdCcexrVH8epjAtGddaCQWhkT9kOfkO4KR9Qoj0EjkMIQRsyQL90S5otjtfiRQT8_eL
+PCoWyb_ByP5nHzEFP5YwVRYzAmU8fTq-L6b1wUsFVF3HjzN1XVmNsF1zT5FH-pI8asTWdv83B3y-
+wDbtMd_FYEKjI3gnR_dsrtU0-
+L9UXf41gRdPMWXmNLaDt6au0m7mSU3d37IEiIXdCNorFnmcN2mp6c34UKdJUXdIyItb0e9F81N-
+rcqPKrtjtoTnOEltdgTZJ13Ca_q3x9iO_8xfFhfz4AvJjOQn1_qswr9JxcHyXXbJG6F9PDhg8MlIDJQ
+
+8.2 KYC SERVICE
+
+Service Type: REST
+Authentication Mechanism: Bearer Token
+Base URL: localhost:8081
+
+Financial Services ­ Product Shop       2023     Page 14 of 31
+                                   Confidential
+8.2.1 KYC Check
+
+This service will determine if the requested customer is KYC compliant. It takes in a customer id and returns 3
+indicators for the users KYC Status, namely:
+
+     · Primary Indicator
+     · Secondary Indicator
+     · Tax Compliance
+In our scenario, a user is only able to take up our products if their primary indicator is a "true" ­ indicating that we
+do know our customer - and if the Tax Compliance is either AMBER or GREEN.
+
+Request:
+
+curl --location 'http://localhost:8081/kyc/123' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDQ1MjUzNywiaWF0IjoxNjkwNDQ4O
+TM3fQ.vAln15u7cRiiIKphFvjiVYb1K0JKen2yy7tl4bvFVXKSahLoJ6833PV6ZjF8UW191dofrnicWkaomxn21-
+3hX932hgQMeG7KTq-oUUnn2QN-opGCTA492JdY-p4UwqWLv6VCTakUDmbCghSh9j-
+S1RbwZ8l1FzlP20ToTNNxd8dKnUZYFwXcntJI3G-o_q0H3sgElG6iZrP-
+tV4Y4tVZMQzEVfyAWieaB053lwbyymRL1gq3f07bAIU1Lf2M1Xn4--
+ChXwnwh4czrDRmIw9g_jgXKNLMNaO8w_7_1_05Im7dH8qHC8oD1XWLfW48AOqjHK9TirQDCpGY3D1ag'
+
+Response:
+
+{
+   "primaryIndicator": false,
+   "secondaryIndicator": false,
+   "taxCompliance": "green"
+
+}
+
+8.3 DEPARTMENT OF HOME AFAIRS SERVICE
+
+This service proxies webservice calls to the department of home affairs. As a result, it takes in the id number of a
+customer and not the customer id in all of its requests. You will need get the id number for a specific customer
+from the Customer Information Store service.
+
+Service Type: REST
+Authentication Mechanism: Bearer Token
+URL: localhost:8082
+
+8.3.1 Marital Status Check
+
+Financial Services ­ Product Shop       2023     Page 15 of 31
+                                   Confidential
+This service takes in an RSA ID number and returns the users current marital status, as well as a list of previous
+marital status' that user may have. If a customer selects a product that requires a Marital Status check, the system
+needs to confirm that the current status is "married".
+
+Request:
+
+curl --location 'http://localhost:8082/status/marital/4006183645875' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDQ1MjUzNywiaWF0IjoxNjkwNDQ4O
+TM3fQ.vAln15u7cRiiIKphFvjiVYb1K0JKen2yy7tl4bvFVXKSahLoJ6833PV6ZjF8UW191dofrnicWkaomxn21-
+3hX932hgQMeG7KTq-oUUnn2QN-opGCTA492JdY-p4UwqWLv6VCTakUDmbCghSh9j-
+S1RbwZ8l1FzlP20ToTNNxd8dKnUZYFwXcntJI3G-o_q0H3sgElG6iZrP-
+tV4Y4tVZMQzEVfyAWieaB053lwbyymRL1gq3f07bAIU1Lf2M1Xn4--
+ChXwnwh4czrDRmIw9g_jgXKNLMNaO8w_7_1_05Im7dH8qHC8oD1XWLfW48AOqjHK9TirQDCpGY3D1ag'
+
+Response:
+
+{
+   "currentStatus": {
+      "status": "Single",
+      "effectiveFrom": "2023-07-30",
+      "effectiveTo": ""
+   },
+   "previouStatus": null
+
+}
+
+8.3.2 Duplicate ID Status Check
+
+This service takes in an ID number and returns whether or not the user has a duplicate Identity Document issued.
+Due to the risks of having 2 Identity Documents, no customer that needs to do a Duplicate ID Check can have 2
+ID's and you should validate that the response is false.
+
+Request:
+
+curl --location 'http://localhost:8082/status/duplicateId/4006183645875' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDQ1MjUzNywiaWF0IjoxNjkwNDQ4O
+TM3fQ.vAln15u7cRiiIKphFvjiVYb1K0JKen2yy7tl4bvFVXKSahLoJ6833PV6ZjF8UW191dofrnicWkaomxn21-
+3hX932hgQMeG7KTq-oUUnn2QN-opGCTA492JdY-p4UwqWLv6VCTakUDmbCghSh9j-
+S1RbwZ8l1FzlP20ToTNNxd8dKnUZYFwXcntJI3G-o_q0H3sgElG6iZrP-
+tV4Y4tVZMQzEVfyAWieaB053lwbyymRL1gq3f07bAIU1Lf2M1Xn4--
+ChXwnwh4czrDRmIw9g_jgXKNLMNaO8w_7_1_05Im7dH8qHC8oD1XWLfW48AOqjHK9TirQDCpGY3D1ag' \
+--header 'Cookie: XSRF-TOKEN=f41ef9ef-75f2-49e8-8142-97e6512da66d'
+
+Response:
+
+Financial Services ­ Product Shop       2023     Page 16 of 31
+                                   Confidential
+{
+   "hasDuplicateId": false,
+   "duplicateIdIssueDate": ""
+
+}
+
+8.3.3 Living / Deceased Status Check
+
+This service takes in an ID number and returns if a person is alive or not. For obvious reasons, you should not
+allow a person that is deceased to take up a new product.
+
+Request:
+
+curl --location 'http://localhost:8082/status/living/4006183645875' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDQ1MjUzNywiaWF0IjoxNjkwNDQ4O
+TM3fQ.vAln15u7cRiiIKphFvjiVYb1K0JKen2yy7tl4bvFVXKSahLoJ6833PV6ZjF8UW191dofrnicWkaomxn21-
+3hX932hgQMeG7KTq-oUUnn2QN-opGCTA492JdY-p4UwqWLv6VCTakUDmbCghSh9j-
+S1RbwZ8l1FzlP20ToTNNxd8dKnUZYFwXcntJI3G-o_q0H3sgElG6iZrP-
+tV4Y4tVZMQzEVfyAWieaB053lwbyymRL1gq3f07bAIU1Lf2M1Xn4--
+ChXwnwh4czrDRmIw9g_jgXKNLMNaO8w_7_1_05Im7dH8qHC8oD1XWLfW48AOqjHK9TirQDCpGY3D1ag' \
+--header 'Cookie: XSRF-TOKEN=f41ef9ef-75f2-49e8-8142-97e6512da66d'
+
+Response:
+
+{
+   "livingStatus": "Alive",
+   "deceasedDate": ""
+
+}
+
+8.4 CREDIT CHECK SERVICE
+
+This service calculates a customers' credit status. We don't want to provide people who cannot manage their credit
+with services as this would increase our risk profile above an acceptable level.
+
+Service Type: SOAP
+Authentication Mechanism: None
+URL: localhost:8083
+
+8.4.1 Credit Check
+
+This service takes in a customerId and returns the credit check status for a customer. The service will return the
+credit status as either RED, AMBER or GREEN. In order to open a new product, a customer cannot be in a RED
+credit status.
+
+Financial Services ­ Product Shop       2023     Page 17 of 31
+                                   Confidential
+Request:
+
+curl --location 'http://localhost:8083/CreditCheck' \
+--header 'Content-Type: application/xml' \
+--header 'Authorization: Basic dXNlcjpwYXNzd29yZA==' \
+--data '<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:ent="entelect:devcamp:creditcheckservice">
+
+  <soapenv:Header/>
+  <soapenv:Body>
+
+    <ent:CreditCheck soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+       <customerId xsi:type="xsd:int">123</customerId>
+
+    </ent:CreditCheck>
+  </soapenv:Body>
+</soapenv:Envelope>'
+
+Response:
+
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+   <s:Body>
+      <CreditCheckResponse xmlns="entelect:devcamp:creditcheckservice">
+         <CreditCheckResult>RED</CreditCheckResult>
+      </CreditCheckResponse>
+
+   </s:Body>
+</s:Envelope>
+
+8.5 FRAUD SERVICE
+
+This service is currently being built by the fraud team. The organisation has agreed that they will be developing
+using contract-first development. You can mock this service out in your environment or application based on the
+WSDL that has been provided.
+
+Service Type: SOAP
+Authentication Mechanism: Basic Auth
+URL: NA
+
+8.5.1 Fraud Check
+
+This service is used to check if a customer has been suspected or convicted of committing fraud. We do not want
+to accept the risk of selling any of the included products to a customer that has been or is suspected of committing
+fraud.
+
+Financial Services ­ Product Shop       2023     Page 18 of 31
+                                   Confidential
+Request:
+Response:
+
+8.6 CUSTOMER INFORMATION STORE
+
+The Customer Information Store manages the information for each customer. This includes basic personal
+information, products linked to the customer, contracts that the customer has signed, etc.
+
+Service Type: REST
+Authentication Mechanism: Bearer Auth
+URL: localhost:8084
+
+8.6.1 Fetch Customers
+
+This operation will fetch all the customers currently existing within the Customer Information Store service.
+
+Request:
+
+curl --location 'http://localhost:8084/v1/customers' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDg0MjMwNCwiaWF0IjoxNjkwODM4
+NzA0fQ.UKTNCsYFWfw8hba2MkiRUlU4__ZAmKqzD1BhJP65adWk4UQJeA1C281vVdTZ6sDrad_OaYh7dTuRtBd_ay
+0WCbKUcm7lGrMm93bKdLJMEOpF9KuqJ3k8rZqmWeH05kZ6aB_39AgicDNyLx-E6EGjhLNrlsbMO-
+QcdxuPVFEmvCSFDQQatbPB5Wh0mkGF2aCDxD0yM7GT0q-
+QOj7A1VKtjedKMQo5ekYMzMjFryYAMqqjVA77a7jZUwasCmm6-
+dZr2hte0oSy2Lg7HuV6iPRRELcKspzBuk5V1FNCXYi0b_2VsXkGEr_HAq1FTMUvWEYdbW00YQAfAImGYbqFaxwxcw'
+
+Response:
+
+[
+   {
+      "id": 1,
+      "username": "user",
+      "password": null,
+      "firstName": "Jesse",
+      "lastName": "Leresche",
+      "customerTypeId": null,
+      "customerType": {
+         "id": 2,
+         "name": "Sample Type",
+
+Financial Services ­ Product Shop       2023     Page 19 of 31
+                                   Confidential
+         "description": "Sample Type Description"
+      },
+      "customerAccounts": []
+   }
+]
+
+8.6.2 Fetch Customer Information
+
+This service will return the basic customer information for a given customer id. This will be details like First Name,
+Last name, email, customer type etc.
+
+Request:
+
+curl --location 'http://localhost:8084/v1/customer/1' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDg0MjgwNSwiaWF0IjoxNjkwODM5M
+jA1fQ.gtaxaQd8ANyN-
+slaBFq5QfhwOpynwT09q0GtVcZmlJ9wWvNwCBeMo2aq8bWnn4OFf9D3V57NuQyVT67yS1JyI22ZEsXNmreBlxTiw
+mHWWVg8l6L8_jfa3aT4p2VTkimgnhnzeP72LRaXbpPwaHd9SE-
+i21lXjAWfnq6di3dFIupCPeB1BkELy3k66UoRE4GQq_oMjKnwuIRsVoFxw2gYe3g2Jqkp1RiRjy0R1-
+ckckuSojWzE4bWAbKtgddowCG3PkutlpTHLWofFn_RHw1OQ7AUKww0iYwZ4oLWyuppLDGZF8A5MCoVx5ZrGeAn
+kNm7006OoMipmo-nzZT2uIQQVw'
+
+Response:
+
+{
+   "id": 1,
+   "username": "user",
+   "password": null,
+   "firstName": "Jesse",
+   "lastName": "Leresche",
+   "idNumber": "0001175432082",
+   "customerTypeId": null,
+   "customerType": {
+      "id": 2,
+      "name": "Sample Type",
+      "description": "Sample Type Description"
+   },
+   "customerAccounts": []
+
+}
+
+8.6.3 Register Customer
+
+This service will allow you to register a new customer with the customer information store.
+
+Financial Services ­ Product Shop       2023     Page 20 of 31
+                                   Confidential
+Request:
+curl --location 'http://localhost:8084/v1/customer/' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDg0MjgwNSwiaWF0IjoxNjkwODM5M
+jA1fQ.gtaxaQd8ANyN-
+slaBFq5QfhwOpynwT09q0GtVcZmlJ9wWvNwCBeMo2aq8bWnn4OFf9D3V57NuQyVT67yS1JyI22ZEsXNmreBlxTiw
+mHWWVg8l6L8_jfa3aT4p2VTkimgnhnzeP72LRaXbpPwaHd9SE-
+i21lXjAWfnq6di3dFIupCPeB1BkELy3k66UoRE4GQq_oMjKnwuIRsVoFxw2gYe3g2Jqkp1RiRjy0R1-
+ckckuSojWzE4bWAbKtgddowCG3PkutlpTHLWofFn_RHw1OQ7AUKww0iYwZ4oLWyuppLDGZF8A5MCoVx5ZrGeAn
+kNm7006OoMipmo-nzZT2uIQQVw' \
+--data-raw '{
+ "username": "Sas.vanderwest@entelect.co.za",
+ "password": "SasLovesSpring",
+ "firstName": "Sas",
+ "lastName": "Van Der Westhuizen",
+ "customerTypeId": 3,
+ "idNumber": "9205157654082"
+}'
+
+Response:
+
+{
+   "id": 8,
+   "username": "Sas.vanderwest@entelect.co.za",
+   "password": null,
+   "firstName": "Sas",
+   "lastName": "Van Der Westhuizen",
+   "idNumber": "9205157654082",
+   "customerTypeId": null,
+   "customerType": null,
+   "customerAccounts": null
+
+}
+
+8.6.4 Fetch Account Types
+
+This service will return the account types that have been configured in the system.
+
+Request:
+
+curl --location 'http://localhost:8084/v1/accountTypes' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDg0MjgwNSwiaWF0IjoxNjkwODM5M
+jA1fQ.gtaxaQd8ANyN-
+
+Financial Services ­ Product Shop       2023     Page 21 of 31
+                                   Confidential
+slaBFq5QfhwOpynwT09q0GtVcZmlJ9wWvNwCBeMo2aq8bWnn4OFf9D3V57NuQyVT67yS1JyI22ZEsXNmreBlxTiw
+mHWWVg8l6L8_jfa3aT4p2VTkimgnhnzeP72LRaXbpPwaHd9SE-
+i21lXjAWfnq6di3dFIupCPeB1BkELy3k66UoRE4GQq_oMjKnwuIRsVoFxw2gYe3g2Jqkp1RiRjy0R1-
+ckckuSojWzE4bWAbKtgddowCG3PkutlpTHLWofFn_RHw1OQ7AUKww0iYwZ4oLWyuppLDGZF8A5MCoVx5ZrGeAn
+kNm7006OoMipmo-nzZT2uIQQVw'
+
+Response:
+
+[
+   {
+      "id": 3,
+      "name": "checking account",
+      "description": "foo"
+   }
+
+]
+
+8.6.5 Add Account Types
+
+Request:
+
+curl --location 'http://localhost:8084/v1/accountTypes' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDg0MjgwNSwiaWF0IjoxNjkwODM5M
+jA1fQ.gtaxaQd8ANyN-
+slaBFq5QfhwOpynwT09q0GtVcZmlJ9wWvNwCBeMo2aq8bWnn4OFf9D3V57NuQyVT67yS1JyI22ZEsXNmreBlxTiw
+mHWWVg8l6L8_jfa3aT4p2VTkimgnhnzeP72LRaXbpPwaHd9SE-
+i21lXjAWfnq6di3dFIupCPeB1BkELy3k66UoRE4GQq_oMjKnwuIRsVoFxw2gYe3g2Jqkp1RiRjy0R1-
+ckckuSojWzE4bWAbKtgddowCG3PkutlpTHLWofFn_RHw1OQ7AUKww0iYwZ4oLWyuppLDGZF8A5MCoVx5ZrGeAn
+kNm7006OoMipmo-nzZT2uIQQVw' \
+--data '{
+
+   "description": "foo",
+   "name": "checking account"
+}'
+
+Response:
+
+{
+   "id": 3,
+   "name": "checking account",
+   "description": "foo"
+
+}
+
+Financial Services ­ Product Shop       2023     Page 22 of 31
+                                   Confidential
+8.6.6 Add Account Types to Customer
+
+This services allows you to link a configured account type to the given customer via the customer id. It has no
+response body and just returns a 204 status code.
+
+Request:
+
+curl --location 'http://localhost:8084/v1/customer/1/accounts/3' \
+
+--header 'Content-Type: application/json' \
+
+--header                                     'Authorization:                     Bearer
+
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDg0MjgwNSwiaWF0IjoxNjkwODM5M
+
+jA1fQ.gtaxaQd8ANyN-
+
+slaBFq5QfhwOpynwT09q0GtVcZmlJ9wWvNwCBeMo2aq8bWnn4OFf9D3V57NuQyVT67yS1JyI22ZEsXNmreBlxTiw
+
+mHWWVg8l6L8_jfa3aT4p2VTkimgnhnzeP72LRaXbpPwaHd9SE-
+
+i21lXjAWfnq6di3dFIupCPeB1BkELy3k66UoRE4GQq_oMjKnwuIRsVoFxw2gYe3g2Jqkp1RiRjy0R1-
+
+ckckuSojWzE4bWAbKtgddowCG3PkutlpTHLWofFn_RHw1OQ7AUKww0iYwZ4oLWyuppLDGZF8A5MCoVx5ZrGeAn
+
+kNm7006OoMipmo-nzZT2uIQQVw' \
+
+--data '{
+
+    "description": "Foo",
+
+    "name": "Customer Checking Acount"
+
+}'
+
+Response:
+
+No Content
+
+8.6.7 Fetch Customer Documents
+
+This service will fetch the list of documents for a given customer id.
+
+Request:
+
+curl --location 'http://localhost:8084/v1/customer/1/documents' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDg0MjgwNSwiaWF0IjoxNjkwODM5M
+jA1fQ.gtaxaQd8ANyN-
+slaBFq5QfhwOpynwT09q0GtVcZmlJ9wWvNwCBeMo2aq8bWnn4OFf9D3V57NuQyVT67yS1JyI22ZEsXNmreBlxTiw
+mHWWVg8l6L8_jfa3aT4p2VTkimgnhnzeP72LRaXbpPwaHd9SE-
+i21lXjAWfnq6di3dFIupCPeB1BkELy3k66UoRE4GQq_oMjKnwuIRsVoFxw2gYe3g2Jqkp1RiRjy0R1-
+ckckuSojWzE4bWAbKtgddowCG3PkutlpTHLWofFn_RHw1OQ7AUKww0iYwZ4oLWyuppLDGZF8A5MCoVx5ZrGeAn
+kNm7006OoMipmo-nzZT2uIQQVw'
+
+Response:
+
+Financial Services ­ Product Shop                 2023                           Page 23 of 31
+                                             Confidential
+[
+   {
+      "id": 5,
+      "document": "some-base64-content"
+   }
+
+]
+
+8.6.8 Upload Customer Document
+
+This service will allow you to upload a new document. In our scenario, we will need to upload the customer
+contract that they need to sign in a Base64 encoded format.
+
+Request:
+
+curl --location 'http://localhost:8084/v1/customer/1/documents' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDg0MjgwNSwiaWF0IjoxNjkwODM5M
+jA1fQ.gtaxaQd8ANyN-
+slaBFq5QfhwOpynwT09q0GtVcZmlJ9wWvNwCBeMo2aq8bWnn4OFf9D3V57NuQyVT67yS1JyI22ZEsXNmreBlxTiw
+mHWWVg8l6L8_jfa3aT4p2VTkimgnhnzeP72LRaXbpPwaHd9SE-
+i21lXjAWfnq6di3dFIupCPeB1BkELy3k66UoRE4GQq_oMjKnwuIRsVoFxw2gYe3g2Jqkp1RiRjy0R1-
+ckckuSojWzE4bWAbKtgddowCG3PkutlpTHLWofFn_RHw1OQ7AUKww0iYwZ4oLWyuppLDGZF8A5MCoVx5ZrGeAn
+kNm7006OoMipmo-nzZT2uIQQVw' \
+--data '{
+
+   "document": "some-base64-content"
+}'
+
+Response:
+
+{
+   "documentId": 6
+
+}
+
+8.6.9 Get Customer Types
+
+This service allows you to list all of the configured customer types.
+
+Request:
+
+curl --location --request GET 'http://localhost:8084/v1/customerTypes' \
+--header 'Content-Type: application/json' \
+
+Financial Services ­ Product Shop       2023     Page 24 of 31
+                                   Confidential
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDg0MjgwNSwiaWF0IjoxNjkwODM5M
+jA1fQ.gtaxaQd8ANyN-
+slaBFq5QfhwOpynwT09q0GtVcZmlJ9wWvNwCBeMo2aq8bWnn4OFf9D3V57NuQyVT67yS1JyI22ZEsXNmreBlxTiw
+mHWWVg8l6L8_jfa3aT4p2VTkimgnhnzeP72LRaXbpPwaHd9SE-
+i21lXjAWfnq6di3dFIupCPeB1BkELy3k66UoRE4GQq_oMjKnwuIRsVoFxw2gYe3g2Jqkp1RiRjy0R1-
+ckckuSojWzE4bWAbKtgddowCG3PkutlpTHLWofFn_RHw1OQ7AUKww0iYwZ4oLWyuppLDGZF8A5MCoVx5ZrGeAn
+kNm7006OoMipmo-nzZT2uIQQVw' \
+--data '{
+ "name": "Test Name",
+ "description": "description"
+}'
+
+Response:
+
+[
+   {
+      "id": 2,
+      "name": "Sample Type",
+      "description": "Sample Type Description"
+   }
+
+]
+
+8.6.10 Create Customer Types
+
+This service allows you to create a new customer type within the system.
+
+Request:
+
+curl --location 'http://localhost:8084/v1/customerTypes' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDg0MjgwNSwiaWF0IjoxNjkwODM5M
+jA1fQ.gtaxaQd8ANyN-
+slaBFq5QfhwOpynwT09q0GtVcZmlJ9wWvNwCBeMo2aq8bWnn4OFf9D3V57NuQyVT67yS1JyI22ZEsXNmreBlxTiw
+mHWWVg8l6L8_jfa3aT4p2VTkimgnhnzeP72LRaXbpPwaHd9SE-
+i21lXjAWfnq6di3dFIupCPeB1BkELy3k66UoRE4GQq_oMjKnwuIRsVoFxw2gYe3g2Jqkp1RiRjy0R1-
+ckckuSojWzE4bWAbKtgddowCG3PkutlpTHLWofFn_RHw1OQ7AUKww0iYwZ4oLWyuppLDGZF8A5MCoVx5ZrGeAn
+kNm7006OoMipmo-nzZT2uIQQVw' \
+--data '{
+ "name": "Test Name",
+ "description": "description"
+}'
+
+Financial Services ­ Product Shop       2023     Page 25 of 31
+                                   Confidential
+Response:
+
+{
+   "id": 9,
+   "name": "Test Name",
+   "description": "description"
+
+}
+
+8.6.11 Update Customer with Customer Type
+
+A customer can only be 1 customer type at a time ­ i.e. they cannot be a corporate customer as well as an
+individual customer simultaneously. As a result, you are able to update the Customer Type that a Customer is
+associated with by calling this service.
+
+Request:
+
+curl --location --request PUT 'http://localhost:8084/v1/customer/1/customerTypes/9' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer
+eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidXNlciIsImV4cCI6MTY5MDg0MjgwNSwiaWF0IjoxNjkwODM5M
+jA1fQ.gtaxaQd8ANyN-
+slaBFq5QfhwOpynwT09q0GtVcZmlJ9wWvNwCBeMo2aq8bWnn4OFf9D3V57NuQyVT67yS1JyI22ZEsXNmreBlxTiw
+mHWWVg8l6L8_jfa3aT4p2VTkimgnhnzeP72LRaXbpPwaHd9SE-
+i21lXjAWfnq6di3dFIupCPeB1BkELy3k66UoRE4GQq_oMjKnwuIRsVoFxw2gYe3g2Jqkp1RiRjy0R1-
+ckckuSojWzE4bWAbKtgddowCG3PkutlpTHLWofFn_RHw1OQ7AUKww0iYwZ4oLWyuppLDGZF8A5MCoVx5ZrGeAn
+kNm7006OoMipmo-nzZT2uIQQVw' \
+--data '{
+ "document": "string"
+}'
+
+Response:
+
+204 NO CONTENT
+
+8.7 SERVICE BUS
+
+Due to the various checks that need to happen in the fulfilment process, and the possibility for error, the fulfilment
+process should be completed asynchronously. The approved technologies in the bank are to use a JMS store to
+handle asynchronous communication. In this case the technology used should be RabbitMQ. Given the fact that
+these messages will only be consumed by your 2 services, you will need to define the structure of these yourself.
+
+Financial Services ­ Product Shop       2023     Page 26 of 31
+                                   Confidential
+9 Databases
+
+9.1.1 ERD's
+
+9.1.1.1 Product Catalogue
+Below is the ERD for the Product Catalogue. This is the design that the DBA Team has constructed for your
+application(s). Should you need to make any changes to the below you will need to consult with the DBA Team for
+approval. You should version your services appropriately to cater for changes that they may require further down
+the line in the SDLC.
+
+                                                                  Figure 9-1Product Catalogue ERD
+
+9.1.1.2 Customer Information Store
+The Customer Information Store has already been built out ­ the below ERD is simply to illustrate how all the data
+fits together.
+
+Financial Services ­ Product Shop  Figure 9-2 Customer Information Store ERD        Page 27 of 31
+
+                                                                           2023
+                                                                      Confidential
+10 Technical Setup
+
+The starter project that will be shared with you will have the details on how to get the dependencies running on
+your machine. As mentioned previously, it is up to you to add in the 2 services that you have built into this docker-
+compose file.
+
+NOTE: Any Engineer within the organisation should be able to use this docker-compose file to run the various
+applications. As such, your application needs to be built and pushed into the Entelect Harbor Docker Repository
+for anyone else to be able to access.
+
+11 Reference Documents
+
+Name                               Document                           Link/Document
+Vitesh Jinabhai                    Use Case Diagram (diagrams.net)
+                                                                                         v1 Banking Use
+Vitesh Jinabhai                    Process Flow (Camunda)                                    Case.svg
+
+                                                                            Product Take-up Process.bpmn
+
+12 Document Details
+
+12.1 DISTRIBUTION LIST
+
+Name                               Role                               Sign-off | Review | Info
+                                   Business Owner                     Sign-off
+                                   Business Lead                      Sign-off
+                                   Team Technical Lead                Sign-off
+
+12.2 DOCUMENT HISTORY
+
+Who                                Date        Version  Description
+Vitesh Jinabhai                    2023-07-12  0.1
+Jesse Leresche                     2023-07-27  1        Document creation
+Jesse Leresche                     2023-07-31  2        Added in Service Details & Product Catalogue ERD
+                                                        Added in Customer Information Store ERD & Service
+Jesse Leresche                     2023-08-04  2.1      requests, Updated Product ERD
+                                                        Added in Appendix B with Sample Product Data,
+                                                        updated fulfilment checks based on type.
+
+Financial Services ­ Product Shop                            2023                               Page 28 of 31
+                                                        Confidential
+Appendix A: Detailed Process Flow
+
+A detailed process flow is provided below:
+
+Financial Services ­ Product Shop                2023     Page 29 of 31
+                                            Confidential
+13 Appendix B: Product Sample Data
+
+Sample Data for thew types of products you can expect your system to cater for.
+
+13.1 PRODUCT
+
+Name                               Description                                   Pri Fulfilment
+
+                                                                                 ce Type
+
+Retail Short Term Provides cover for short-term products for individuals - Electronics, R50 C
+
+Insurance                          Household Items, Jewellery, Cars etc.         0
+
+Retail Long-Term Provides cover for longer term products individuals - household R1 C
+
+Insurance                          insurance, life insurance etc.                000
+
+Commercial Short Provides cover for short-term products for commercial entities - R5 C
+
+Term Insurance                     Printers, Company Cars, Theft, etc.           000
+
+Commercial Long- Provides cover for longer term products - office insurance, R10 C
+
+Term Insurance                     employee benefit insurance, etc.              000
+
+Device Contract                    Allows the customer to take out a device on contract - such as a R85 A
+
+                                   phone, laptop etc.                            0
+
+Short-Term                         Provides a way for customers to invest their money over a short R2 B
+
+Investment Product period of time - 32 day fixed deposit etc.                    500
+
+Long-Term                          Provides a way for users to invest their money over the long term - R5 B
+
+investment Product Retirement / Annuity Funds, Unit Trusts etc                   000
+
+Islamic Investment Provides a way for Islamic customers to invest their money    R5 B
+
+Product                                                                          000
+
+VIP Investment Provides an Investment product for VIP customers Over 150 Million R20 B
+
+Product                            Net-Asset Value                               000
+
+13.2 FULFILMENT TYPE
+
+Name Description
+
+A        Smallest unit of checks. This Just requires KYC to be completed.
+
+         Requires all of the checks in Type A, as well as the Fraud Check, Living Status Check and Duplicate ID
+
+B        Check
+
+C        Requires all of the checks in Type B, as well as the Marital Status Check & Credit Check
+
+13.3 QUALIFYING ACCOUNTS
+
+Product Name                                        Account Types
+Retail Short Term Insurance                         Gold Cheque Account, Platinum Cheque Account, Signet Cheque
+                                                    Account, Islamic Cheque Account
+
+Financial Services ­ Product Shop                                       2023                                 Page 30 of 31
+                                                                   Confidential
+Retail Long-Term Insurance         Gold Cheque Account, Platinum Cheque Account, Signet Cheque
+Commercial Short Term Insurance    Account, Islamic Cheque Account
+                                   SME Checking Account, Medium Enterprise Checking Account, Large
+Commercial Long-Term Insurance     Enterprise Checking Account
+                                   SME Checking Account, Medium Enterprise Checking Account, Large
+Device Contract                    Enterprise Checking Account
+                                   Gold Cheque Account, Platinum Cheque Account, Signet Cheque
+Short-Term Investment Product      Account, Islamic Cheque Account, Savings Account
+Long-Term investment Product       Gold Cheque Account, Platinum Cheque Account, Islamic Cheque
+Islamic Investment Product         Account
+VIP Investment Product             Gold Cheque Account, Platinum Cheque Account, Islamic Cheque
+                                   Account
+                                   Islamic Cheque Account
+                                   Signet Cheque Account
+
+13.4 QUALIFYING CUSTOMER TYPES
+
+Product Name                       Customer Types
+Retail Short Term Insurance        INDIVIDUAL
+Retail Long-Term Insurance         INDIVIDUAL
+Commercial Short Term Insurance    SOLE PROP, NON-PROFIT, CIPC
+Commercial Long-Term Insurance     SOLE PROP, NON-PROFIT, CIPC
+Device Contract                    INDIVIDUAL, SOLE PROP, NON-PROFIT, CIPC
+Short-Term Investment Product      INDIVIDUAL, SOLE PROP, NON-PROFIT, CIPC
+Long-Term investment Product       INDIVIDUAL, SOLE PROP, NON-PROFIT, CIPC
+Islamic Investment Product         INDIVIDUAL, NON-PROFIT
+VIP Investment Product             INDIVIDUAL
+
+Financial Services ­ Product Shop       2023                                Page 31 of 31
+                                   Confidential
+

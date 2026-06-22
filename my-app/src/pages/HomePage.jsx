@@ -1,14 +1,17 @@
 import TopNav from '../components/home/TopNav'
 import useProducts from '../hooks/useProducts'
+import useAuth from '../hooks/useAuth'
 import ProductCard from '../components/home/ProductCard'
 import FeaturedBanner from '../components/home/FeaturedBanner'
 import Header from '../components/home/Header'
 import { useState, useMemo } from 'react'
 import CategoryFilter from '../components/home/CategoryFilter'
 import BottomNav from '../components/home/BottomNav'
+import AuthedHome from './AuthedHome'
 import { categories, getCategory } from '../utils/category'
 
 function HomePage() {
+  const { status } = useAuth()
   const { products, loading, error } = useProducts()
   const [category, setCategory] = useState('All')
 
@@ -17,6 +20,10 @@ function HomePage() {
     if (category === 'All') return products
     return products.filter((p) => getCategory(p.name) === category)
   }, [products, category])
+
+  if (status === 'authenticated') {
+    return <AuthedHome products={products} loading={loading} error={error} />
+  }
 
   return (
     <>

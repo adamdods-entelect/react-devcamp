@@ -1,11 +1,12 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { ChevronRight, CheckCircle2, Loader2, AlertCircle } from 'lucide-react'
 import kycIllustration from '../assets/kyc.png'
 import UploadOptionsSheet from '../components/kyc/UploadOptionsSheet'
 import CameraCaptureFlow from '../components/kyc/CameraCaptureFlow'
 import PhotoUploadFlow from '../components/kyc/PhotoUploadFlow'
 import { uploadKycDocument } from '../services/kycStorage'
+import { getProfile } from '../services/profile'
 
 const DOCS = {
     residence: {
@@ -51,6 +52,17 @@ const DOCS = {
 
 function KycPage() {
     const navigate = useNavigate()
+    const location = useLocation()
+
+    // Which customer these documents belong to. Comes from registration via
+    // route state; fall back to fetching the logged-in profile (e.g. on refresh).
+    const [customerId, setCustomerId] = useState(location.state?.customerId ?? null)
+
+    useEffect(() => {
+        if (customerId) return
+        getProfile().then((p) => p && setCustomerId(p.id))
+    }, [customerId])
+
     // per-document upload status: 'idle' | 'uploading' | 'done' | 'error'
     const [status, setStatus] = useState({ residence: 'idle', selfie: 'idle' })
 
@@ -61,9 +73,14 @@ function KycPage() {
     const bothDone = status.residence === 'done' && status.selfie === 'done'
 
     const startUpload = async (doc, file) => {
+        if (!customerId) {
+            console.error('No customerId — cannot attribute KYC upload to a user')
+            setStatus((s) => ({ ...s, [doc]: 'error' }))
+            return
+        }
         setStatus((s) => ({ ...s, [doc]: 'uploading' }))
         try {
-            await uploadKycDocument(doc, file)
+            await uploadKycDocument(customerId, doc, file)
             setStatus((s) => ({ ...s, [doc]: 'done' }))
         } catch (err) {
             console.error('KYC upload failed', err)
@@ -142,7 +159,10 @@ function KycPage() {
             </div>
 
             {bothDone && (
-                <button className="mt-8 w-full rounded-full bg-blue-600 py-3 font-semibold text-white">
+                <button
+                    onClick={() => navigate('/')}
+                    className="mt-8 w-full rounded-full bg-blue-600 py-3 font-semibold text-white"
+                >
                     Submit
                 </button>
             )}

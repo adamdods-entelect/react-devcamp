@@ -5,9 +5,11 @@ import ProtectedRoute from './components/ProtectedRoute'
 import LoadingPage from './pages/LoadingPage'
 import LoginPage from "./pages/LoginPage"
 import SignInPage from './pages/SignInPage'
+import RegisterPage from './pages/RegisterPage'
 import KycPage from './pages/KycPage'
 import HomePage from './pages/HomePage'
 import ProductPage from './pages/ProductPage'
+import ProductGridPage from './pages/ProductGridPage'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -22,6 +24,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/login/signin" element={<SignInPage />} />
+      <Route path="/register" element={<RegisterPage /> } />
       <Route path="/kyc" element={<KycPage />} />
 
       <Route
@@ -37,6 +40,22 @@ function App() {
         element={
           <ProtectedRoute>
             <ProductPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/recommended"
+        element={
+          <ProtectedRoute>
+            <ProductGridPage title="Recommended to you" range={[0, 6]} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/new-arrivals"
+        element={
+          <ProtectedRoute>
+            <ProductGridPage title="New arrivals" range={[6, 12]} />
           </ProtectedRoute>
         }
       />

@@ -1,0 +1,402 @@
+React DevCamp Handbook
+                                 React DevCamp
+
+Overview
+
+Welcome, aspiring React developers! According to Stack Overflow's 2023 survey, React is the most popular enterprise-grade
+web technology in the world -- which makes it an invaluable tool to have on your toolbelt! This DevCamp is aimed at
+sharpening your skills, expanding your understanding, and empowering you to create captivating and functional React web
+applications. Over the next few weeks, you'll have the chance to apply fundamental React concepts and techniques to real-
+world scenarios, gaining practical experience that will kickstart your journey as a React developer.
+
+Duration                         Prerequisites                Technical Requirements
+· 8 Weeks                                                     · NodeJS and NPM
+                                 · JavaScript Basics          · VS Code or WebStorm
+                                 · NodeJS Basics              · Git
+
+Concepts Covered                 · React State & Hooks        · Custom React Hooks
+                                 · React Routing              · React Context
+· React Basics                   · React Forms                · Building React For Production
+· React Project Scaffolding      · React Component Libraries  · React Unit Testing
+· React Code Quality & Linting
+· React Components & Props
+
+Timeline                         Milestone 2                  Milestone 3
+
+              Milestone 1          Login Page                   Home Page
+                                                                Guest Login
+                  Project Setup
+                   Product Page
+
+ Milestone 6                         Milestone 5                Milestone 4
+
+   Add to Cart                      User Registration         Know Your Customer
+Data Persistence                         Analytics             Document Storage
+
+ Milestone 7                         Milestone 8
+
+      Sharing                          App Flavours
+  Deep Linking                   Building for Production
+                              Getting Started
+
+Setting up your development environment
+
+Before we dive into the exciting world of React development, let's ensure your development environment is set up correctly. Follow these
+steps to get everything in order:
+
+1. Install NodeJS
+
+React uses NodeJS to build and bundle its JavaScript runtime code. Please download the latest LTS version of NodeJS here. Installing NodeJS
+will also install NPM (Node Package Manger), which React (and all NodeJS projects) uses to manage its dependencies.
+You can verify that NodeJS and NPM have installed correctly by running the following commands from any terminal.
+· node -v
+· npm -v
+If NodeJS and NPM are correctly installed, these commands should list the installed versions, respectively:
+
+If you receive an error stating that either NodeJS or NPM is not an internal or external command, make sure that NodeJS and NPM have been
+added to your system path variable. This should be done for you automatically during the installation process, but in case this did not happen
+you can follow this guide.
+
+2. Install IDE
+
+For JavaScript and TypeScript development, WebStorm and VS Code both offer great development experiences. WebStorm is paid-for, but
+already comes bundled with all the necessary React development tools out of the box. WebStorm does have a trial period if you'd like to try it
+out for free. VS Code is free but requires you to find and install your own framework related plugins. Its out-of-box React development
+experience is not great, but you can reach out to the Entelect #react slack channel to ask for some recommended React plugins to make your
+experience better.
+WebStorm is built by JetBrains, so if you're used to their IDEs (such as IntelliJ and Rider), it will give you a more familiar development
+experience. VS Code is built by Microsoft, so if you're familiar with Microsoft Visual Studio, VS Code will be the more familiar option.
+
+3. Set up Git
+
+We'll be using Git for version control. If you don't have Git installed, follow the instructions on the official Git website to do so. Both WebStorm
+and VS Code have built-in Git integrations, which greatly improve your development experience; but you're welcome to use a different Git GUI
+tool if you prefer.
+
+Next Steps
+
+You should now be equipped with the essential tools and resources needed for the React DevCamp. Let's dive right in!
+This guide is organised into weekly deliverables, each focussing React-specific development concepts and tasks. Start with Milestone 1 and
+progress through each week sequentially.
+You'll find more details on the next page.
+
+Need Help?
+
+If you encounter any challenges or have questions, reach out to your Team Lead! Join the DevCamp Teams channel, where you connect with
+fellow engineers for support.
+Now, let the coding adventure begin! Happy coding and enjoy the journey of becoming a React developer.
+                Milestone Breakdown
+
+Milestone 1     Milestone 1
+
+ Project Setup  Deliverables
+ Product Page
+                · Pick A React Flavour
+                When using React on an enterprise-grade system, you'll more than likely use one of
+                React's recommended frameworks such as NextJS, Remix, Gatsby, or Expo (for
+                native apps). However, if your main goal is to learn the core principles of React, it is
+                recommended to use React without a framework. Once you understand React, its
+                frameworks are very easy to pick up. You can learn more about React and its
+                frameworks here.
+                For this DevCamp, we'll be using Vite to scaffold our frameworkless React project
+                for us. You can use either JavaScript or TypeScript with React. We recommend
+                sticking with JavaScript to focus on the React learnings, but if you are experienced
+                with TypeScript, you're welcome to use it. Have a look at Vite's scaffolding
+                documentation to see how you can set up a project using either the react or
+                react-ts templates.
+
+                · Project Setup
+                Create a brand-new frameworkless React project and push it to your Git repository.
+                Give the project any name; make it creative if you'd like! (Refer to Appendix A to see
+                what the app is about for inspiration).
+
+                · Implement First Screen
+                Build the product info page according to the designs and use it as your initial screen
+                (the Figma design will state that it's for Android; however, you can build a mobile-
+                first web-app version of these designs).
+
+                Resources
+
+                · BRS requirement (Appendix A)
+                US4 ­ View products
+
+                · Designs
+                Figma  Ready for Development  Home  Product Page
+
+                Useful Links                   2. Learn React
+                                               · Describing the UI
+                1. Getting Started with React  · Adding Interactivity
+                · Quick Start                  · Managing State
+                · Tutorial: Tic-Tac-Toe
+                · Thinking in React                 · Stop before "Extracting State
+                                                         Logic into a Reducer" subsection
+                3. React Hooks
+                · useState                     4. Scaffolding React
+                · useEffect                    · Scaffolding Your First Project
+                                               · Editor Setup (ESLint + Prettier)
+                                               · React Developer Tools
+              Milestone Breakdown
+
+Milestone 2   Milestone 2
+
+  Login Page  Deliverables
+
+              · Component Library
+              When it comes to reusable components such as buttons, inputs, cards, etc; there's
+              no need to reinvent the wheel. There are a ton of fantastic component and styling
+              libraries out there for React, and you're welcome to try some of them out. Our
+              recommendations are listed under the Useful Links section.
+
+              · Form Library
+              Just as with reusable components, there's no need to build form logic from scratch.
+              There are many feature-rich form libraries for React, which you're welcome to use on
+              your project. Our recommendations are listed under the Useful Links section.
+
+              · Routing
+              Since we'll be building more pages soon, we'll need a routing library for our
+              application. React Router is a well-tested and mature routing library for React, which
+              we'll be using it to facilitate routing within our applications.
+
+              · Login Page
+              Build a functional, user-friendly, and secure Login page. Ensure you use the
+              provided auth service.
+
+              Resources
+
+              · BRS Requirements & Service (Appendix A)
+              US1 ­ Log in
+              8.1 Authentication Service
+
+              · Designs
+              Figma  Ready for Development  Log in  Login Flow
+
+              Useful Links             Form Libraries
+                                       · Controlled And Uncontrolled
+              Component Libraries
+              · Tailwind CSS                Components
+              · React Semantic UI      · React Hook Form (recommended)
+              · React Flowbite         · Formik
+
+              Routing Library          Request Libraries
+              · React Router Tutorial  · Axios (simpler, not React specific)
+                                       · React Query (more powerful)
+               Milestone Breakdown
+
+Milestone 3    Milestone 3
+
+  Home Page    Deliverables
+  Guest Login
+               · Custom Hooks
+               With React, it is best practice to reuse components to compose your application.
+               You'll also find it helpful to make your application/business logic reusable. In many
+               cases, it make sense to separate your render-logic from your business/application-
+               logic. To do this, React allows you to create custom hooks. See the Useful Links
+               section for more information on this.
+
+               · Home Page
+               Build the Home page to display available products to the user. Ensure you cater for
+               loading and error states for your screens. Use the provided Catalogue service.
+
+               · Guest Login
+               Allow anyone to access the app as a guest. Only certain products are available; and
+               some functionality is blocked. Ensure you look over the designs and BRS to
+               understand the different login views.
+
+               Resources
+
+               · BRS Requirement & Service (Appendix A)
+               US4 ­ View Products
+               9.1.1 Product Catalogue
+
+               · Designs
+               Figma  Ready for Development  Home  Guest Flow
+
+               Useful Links          Advanced State Management
+                                     · React Context
+               Advanced React Hooks  · You probably don't need Redux
+               · useCallback
+               · useMemo
+               · Custom Hooks
+
+               React Hook Libraries
+               · React Use
+                    Milestone Breakdown
+
+                    Milestone 4
+
+                    Deliverables
+
+                    · Know Your Customer (KYC)
+                    Implement the KYC flow where the user must upload proof of residence and a selfie.
+                    Allow the user to take a photo or select a file.
+
+                    · Document Storage
+                    Use Firebase to store the uploaded documents.
+
+   Milestone 4      Resources
+
+Know Your Customer  · BRS Requirement
+ Document Storage   US7 ­ Do Customer Checks
+
+                    · Designs
+                    Figma  Ready for Development  Registration  KYC Flows
+
+                    Useful Links             File Picker Libraries
+                                             · Use File Picker
+                    Unit Testing React       · Upload Widget React
+                    · Jest
+                    · React Testing Library  Webcam Library
+                                             · React Webcam
+                    Firebase
+                    · Firebase For Web
+                   Milestone Breakdown
+
+ Milestone 5       Milestone 5
+
+User Registration  Deliverables
+     Analytics
+                   · User Registration
+                   Build a user registration flow with input validation. Include the completed KYC flow
+                   as a step.
+                   · Analytics
+                   Use Firebase to add analytics to the app. Track when a user drops out of registration.
+
+                   Resources
+
+                   · BRS Requirements & Service
+                   US2 ­ Create Profile
+                   8.6.3 Register Customer
+
+                   · Designs
+
+                   Figma  Ready for Development  Registration  Registration Flow
+
+                   Useful Links
+                   Firebase
+
+                   · Firebase Analytics For Web
+                  Milestone Breakdown
+
+                  Milestone 6
+
+                  Deliverables
+
+                  · Add to Cart
+                  Allow the user to add items to their cart and check out. Users need to be logged in to
+                  complete the process.
+
+                  · Data Persistence
+                  When a user adds items to their cart, those items should be there after closing and
+                  reopening the website.
+
+Milestone 6       Resources
+
+   Add to Cart    · BRS Requirement
+Data Persistence  US8 ­ Generate Contract
+
+                  · Designs
+                  Figma  Ready for Development  Checkout
+
+                  Useful Links              React Storage Libraries
+
+                  Data Persistence          · React Use
+                  · Using storage in React       · Local Storage
+                  · Browser Local Storage        · Session Storage
+               Milestone Breakdown
+
+               Milestone 7
+
+               Deliverables
+
+               · Sharing
+               Allow the user to share products with friends over social media platforms. Ensure
+               that a link back to the app is included. Optionally allow users to download a
+               product's details as a PDF.
+
+               · Deep Linking
+               Open your app when a user clicks on a link on their device.
+
+Milestone 7    Resources
+
+    Sharing    · BRS Requirements
+ Deep Linking  None
+
+               · Designs
+               Figma  Ready for Development  Home  Product Enhancement
+
+               Useful Links         PDFs with React
+                                    · React PDF
+               Deep Linking
+               · React Router
+                           Milestone Breakdown
+
+                           Milestone 8
+
+                           Deliverables
+
+                           · App Environment Variants
+                           Allow the app to be built for multiple environments. Change the colour scheme per
+                           environment. Allow features to be disabled for certain environments.
+                           · Building for Production
+                           Optimise your web app for production. Implement best practices such as source-
+                           map deletion, obfuscation, minification/uglification, and tree-shaking to improve the
+                           security of your production app.
+
+                           Resources
+
+                           · BRS Requirement
+                           None
+                           · Designs
+                           Figma  Colours
+
+     Milestone 8           Useful Links          Building for Production
+                                                 · Vite Production Building
+App Environment Variants   Env Variables         · Vite Build Options
+  Building for Production  · Vite Env Variables  · Vite Obfuscator
+                                   Additional Resources
+
+Learn React                        React State & Hooks
+
+· Quick Start                      · useState
+· Tutorial: Tic-Tac-Toe            · useEffect
+· Thinking in React                · useCallback
+· Describing the UI                · useMemo
+· Adding Interactivity             · Custom Hooks
+· Managing State                   · React Context
+
+Useful React Libraries             React Testing
+
+· Component Libraries:             · React Testing Library
+          · Tailwind CSS           · Jest
+          · React Semantic UI
+          · React Flowbite         Firebase
+
+· Form Libraries:                  · Firebase For Web
+          · React Hook Form        · Firebase Analytics For Web
+          · Formik
+                                   Data Persistence
+· Routing Library:
+          · React Router Tutorial  · Using Local and Session storage in React
+                                   · Browser Local Storage
+· Request Libraries:
+          · Axios
+          · React Query
+
+· File Picker Libraries:
+          · Use File Picker
+          · Upload Widget React
+
+· PDF Library:
+          · React PDF
+
+· Useful Hook Library:
+          · React Use
+
+Vite
+
+· Scaffolding Your First Project
+· Env Variables
+· Production Building
+· Build Options
+· Obfuscator
+

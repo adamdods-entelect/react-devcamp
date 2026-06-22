@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom'
+import { useEffect } from 'react'
 
 import useProduct from '../hooks/useProduct'
 import ProductPageSkeleton from '../components/product/ProductPageSkeleton'
@@ -12,6 +13,10 @@ function ProductPage() {
   const { id } = useParams()
   const { product, related, error } = useProduct(id)
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [id])
+  
   if (error) return <main className="p-4">Failed to load product: {error}</main>
   if (!product) return <ProductPageSkeleton />
 
