@@ -3,6 +3,8 @@ import Webcam from 'react-webcam'
 import { X } from 'lucide-react'
 import PrepSheet from './PrepSheet'
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+
 async function dataUrlToFile(dataUrl, filename) {
     const res = await fetch(dataUrl)
     const blob = await res.blob()
@@ -26,6 +28,7 @@ function CameraCaptureFlow({
     const webcamRef = useRef(null)
     const [phase, setPhase] = useState(prep ? 'prep' : 'frame') // prep | frame | capturing | review
     const [shot, setShot] = useState(null)
+    const [error, setError] = useState('')
 
     const capture = useCallback(() => {
         setPhase('capturing')
@@ -42,11 +45,17 @@ function CameraCaptureFlow({
 
     const submit = async () => {
         const file = await dataUrlToFile(shot, filename)
+        if (file.size > MAX_FILE_SIZE) {
+            setError(`${noun.charAt(0).toUpperCase() + noun.slice(1)} is too large. Please retake under 10MB.`)
+            return
+        }
+        setError('')
         onSubmit(file)
     }
 
     const retake = () => {
         setShot(null)
+        setError('')
         setPhase('frame')
     }
 
@@ -103,6 +112,7 @@ function CameraCaptureFlow({
                 {phase === 'capturing' && <div className="h-16 w-16 rounded-full bg-white/20" />}
                 {phase === 'review' && (
                     <>
+                        {error && <p className="text-center text-sm text-red-400">{error}</p>}
                         <button onClick={submit} className="w-full rounded-full bg-white py-3 font-semibold text-black">
                             Submit {noun}
                         </button>

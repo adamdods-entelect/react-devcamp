@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-function EmailStep({ onNext, defaultEmail = '' }) {
+function EmailStep({ onNext, onGoogle, defaultEmail = '' }) {
     const {
         register,
         handleSubmit,
@@ -27,9 +27,10 @@ function EmailStep({ onNext, defaultEmail = '' }) {
           Create a profile, browse and subscribe to our range of products.
         </p>
 
-        {/* Continue with Google — placeholder, no backend support yet */}
+        {/* Continue with Google — provisions/links the backend account via the derived password */}
         <button
           type="button"
+          onClick={onGoogle}
           className="mt-6 flex w-full items-center justify-center gap-3 rounded-md border border-gray-300 py-3 font-medium text-gray-700"
         >
           <GoogleIcon />

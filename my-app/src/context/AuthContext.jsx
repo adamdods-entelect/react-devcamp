@@ -1,4 +1,6 @@
 import { createContext, useState } from 'react'
+import { signOut } from 'firebase/auth'
+import { auth } from '../services/firebase'
 
 export const AuthContext = createContext(null)
 
@@ -17,8 +19,9 @@ export function AuthProvider({ children }) {
     setStatus('guest')
   }
 
-  const logout = () => {
+  const logout = async () => {
     localStorage.removeItem('accessToken')
+    if (auth.currentUser) await signOut(auth) // clear any Google/Firebase session too
     setStatus('unauthenticated')
   }
 

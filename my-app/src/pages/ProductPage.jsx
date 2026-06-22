@@ -37,7 +37,7 @@ function ProductPage() {
         </div>
       </div>
       <RelatedProducts products={related} />
-      <PriceBar price={product.price} />
+      <PriceBar product={product} />
     </main>
   )
 }

@@ -1,21 +1,65 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import EmailStep from '../components/register/EmailStep'
 import VerifyCodeStep from '../components/register/VerifyCodeStep'
 import AboutYouStep from '../components/register/AboutYouStep'
 import PasswordStep from '../components/register/PasswordStep'
 import useAuth from '../hooks/useAuth'
 import { registerCustomer } from '../services/registration'
+import { signInWithGoogle } from '../services/googleAuth'
 
-const STEPS = ['email', 'verify', 'about', 'password']
+const FULL_STEPS = ['email', 'verify', 'about', 'password']
+// Coming from Google we already have the email (verified by Google) and a derived
+// password, so we only need the "about" step to collect names + ID number.
+const GOOGLE_STEPS = ['about']
 
 function RegisterPage() {
     const navigate = useNavigate()
+    const location = useLocation()
 
     const { login } = useAuth()
 
+    // Google can arrive two ways: via route state (button on the Login page) or via
+    // the button on this page's first step. Either way it flips us to the about-only flow.
+    const [google, setGoogle] = useState(location.state?.google ?? null)
+    const STEPS = google ? GOOGLE_STEPS : FULL_STEPS
+
     const [step, setStep] = useState(0)
-    const [data, setData] = useState({})
+    const [data, setData] = useState(() =>
+        google
+            ? {
+                  email: google.email,
+                  password: google.password,
+                  firstName: google.firstName,
+                  lastName: google.lastName,
+              }
+            : {}
+    )
+
+    const handleGoogle = async () => {
+        setError('')
+        try {
+            const res = await signInWithGoogle()
+            if (res.kind === 'existing') {
+                login(res.token) // returning user: both sessions active
+                navigate('/')
+                return
+            }
+            // new Google user: switch this page to the about-only flow, pre-filled
+            const gd = {
+                email: res.email,
+                password: res.password,
+                firstName: res.firstName,
+                lastName: res.lastName,
+            }
+            setData((d) => ({ ...d, ...gd }))
+            setGoogle(gd)
+            setStep(0)
+        } catch (err) {
+            if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') return
+            setError('Could not sign in with Google. Please try again.')
+        }
+    }
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState('')
 
@@ -70,7 +114,7 @@ function RegisterPage() {
     const renderStep = () => {
         switch (STEPS[step]) {
             case 'email':
-                return <EmailStep onNext={next} defaultEmail={data.email} />
+                return <EmailStep onNext={next} onGoogle={handleGoogle} defaultEmail={data.email} />
             case 'verify':
                 return <VerifyCodeStep email={data.email} onNext={next} onBack={back} />
             case 'about':

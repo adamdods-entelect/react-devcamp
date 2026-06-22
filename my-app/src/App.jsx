@@ -10,6 +10,8 @@ import KycPage from './pages/KycPage'
 import HomePage from './pages/HomePage'
 import ProductPage from './pages/ProductPage'
 import ProductGridPage from './pages/ProductGridPage'
+import AccountPage from './pages/AccountPage'
+import SubscriptionsPage from './pages/SubscriptionsPage'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -56,6 +58,22 @@ function App() {
         element={
           <ProtectedRoute>
             <ProductGridPage title="New arrivals" range={[6, 12]} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/account"
+        element={
+          <ProtectedRoute allowGuest={false}>
+            <AccountPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/subscriptions"
+        element={
+          <ProtectedRoute allowGuest={false}>
+            <SubscriptionsPage />
           </ProtectedRoute>
         }
       />

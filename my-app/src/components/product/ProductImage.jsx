@@ -7,7 +7,7 @@ function ProductImage({ imageUrl, discount }) {
                 </span>
             )}
             <img
-                src={imageUrl || 'https://picsum.photos/400/300'}
+                src={imageUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAPf_062JKWOBQr9rKxfyjLtlwzCn6Wwx_fJ6vQDIAgQ&s=10'}
                 alt=""
                 className="block h-[260px] w-full rounded-lg object-cover md:h-[340px]"
             />

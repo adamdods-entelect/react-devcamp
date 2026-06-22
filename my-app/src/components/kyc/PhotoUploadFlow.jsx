@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, Camera, FileText } from 'lucide-react'
 import PrepSheet from './PrepSheet'
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+
 const DEFAULT_PREP = {
     title: 'Prep for your photo',
     tips: [
@@ -15,6 +17,7 @@ function PhotoUploadFlow({ noun = 'photo', accept = 'image/*', prep = DEFAULT_PR
     const [phase, setPhase] = useState('prep') // prep | review
     const [file, setFile] = useState(null)
     const [preview, setPreview] = useState(null)
+    const [error, setError] = useState('')
 
     // release the object URL when it changes or the component unmounts
     useEffect(() => {
@@ -29,6 +32,11 @@ function PhotoUploadFlow({ noun = 'photo', accept = 'image/*', prep = DEFAULT_PR
         const picked = e.target.files?.[0]
         e.target.value = '' // allow re-picking the same file
         if (!picked) return
+        if (picked.size > MAX_FILE_SIZE) {
+            setError(`${noun.charAt(0).toUpperCase() + noun.slice(1)} is too large. Please choose a file under 10MB.`)
+            return
+        }
+        setError('')
         if (preview) URL.revokeObjectURL(preview)
         setFile(picked)
         setPreview(picked.type.startsWith('image/') ? URL.createObjectURL(picked) : null)
@@ -49,7 +57,9 @@ function PhotoUploadFlow({ noun = 'photo', accept = 'image/*', prep = DEFAULT_PR
             </div>
 
             <div className="flex flex-1 items-center justify-center overflow-hidden px-6">
-                {preview ? (
+                {error ? (
+                    <p className="max-w-xs text-center text-red-400">{error}</p>
+                ) : preview ? (
                     <img src={preview} alt="Selected preview" className="max-h-full max-w-full rounded-2xl object-contain" />
                 ) : file ? (
                     <div className="flex flex-col items-center text-white/80">

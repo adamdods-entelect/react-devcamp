@@ -1,0 +1,76 @@
+import { Link } from 'react-router-dom'
+import { Layers, Trash2 } from 'lucide-react'
+import TopNav from '../components/home/TopNav'
+import BottomNav from '../components/home/BottomNav'
+import useSubscriptions from '../hooks/useSubscriptions'
+import { removeSubscription } from '../services/subscriptions'
+
+function SubscriptionsPage() {
+  const subscriptions = useSubscriptions()
+
+  return (
+    <>
+      <TopNav />
+      <main className="mx-auto max-w-2xl px-4 pb-24 pt-6 md:pb-8">
+        <h1 className="text-2xl font-bold">Your subscriptions</h1>
+
+        {subscriptions.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <ul className="mt-6 space-y-3">
+            {subscriptions.map((s) => (
+              <li key={s.id} className="flex items-center gap-4 rounded-xl border border-gray-200 p-3">
+                <Link to={`/products/${s.id}`} className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-50">
+                  <img
+                    src={s.imageUrl || 'https://picsum.photos/200'}
+                    alt=""
+                    className="h-full w-full object-contain"
+                  />
+                </Link>
+                <div className="min-w-0 flex-1">
+                  <Link to={`/products/${s.id}`} className="block truncate font-semibold text-gray-900">
+                    {s.name}
+                  </Link>
+                  <p className="text-sm text-gray-500">R{Number(s.price).toFixed(2)} / month</p>
+                  <span className="mt-1 inline-block rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                    Active
+                  </span>
+                </div>
+                <button
+                  onClick={() => removeSubscription(s.id)}
+                  aria-label={`Cancel ${s.name}`}
+                  className="text-gray-400 hover:text-red-500"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </main>
+      <BottomNav />
+    </>
+  )
+}
+
+function EmptyState() {
+  return (
+    <div className="mt-16 flex flex-col items-center text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+        <Layers className="h-8 w-8" />
+      </div>
+      <p className="mt-4 font-semibold text-gray-900">No subscriptions yet</p>
+      <p className="mt-1 max-w-xs text-sm text-gray-500">
+        Browse our products and subscribe to see them here.
+      </p>
+      <Link
+        to="/"
+        className="mt-6 rounded-full bg-gradient-to-r from-blue-600 to-cyan-400 px-6 py-3 font-semibold text-white"
+      >
+        Browse products
+      </Link>
+    </div>
+  )
+}
+
+export default SubscriptionsPage
