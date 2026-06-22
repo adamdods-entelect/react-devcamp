@@ -12,6 +12,7 @@ import ProductPage from './pages/ProductPage'
 import ProductGridPage from './pages/ProductGridPage'
 import AccountPage from './pages/AccountPage'
 import SubscriptionsPage from './pages/SubscriptionsPage'
+import { getNewArrivals } from './utils/productSections'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -57,7 +58,7 @@ function App() {
         path="/new-arrivals"
         element={
           <ProtectedRoute>
-            <ProductGridPage title="New arrivals" range={[6, 12]} />
+            <ProductGridPage title="New arrivals" select={getNewArrivals} />
           </ProtectedRoute>
         }
       />

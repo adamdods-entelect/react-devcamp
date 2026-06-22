@@ -4,7 +4,7 @@ function ProductCard({ product }) {
   return (
     <Link
       to={`/products/${product.id}`}
-      className="block rounded-xl border border-gray-200 p-3"
+      className="block h-full rounded-xl border border-gray-200 p-3"
     >
       <div className="aspect-square overflow-hidden rounded-lg bg-white">
         <img

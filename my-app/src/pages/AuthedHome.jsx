@@ -3,11 +3,12 @@ import Header from '../components/home/Header'
 import FeaturedBanner from '../components/home/FeaturedBanner'
 import ProductRow from '../components/home/ProductRow'
 import BottomNav from '../components/home/BottomNav'
+import { getNewArrivals } from '../utils/productSections'
 
 function AuthedHome({ products, loading, error }) {
   const list = products || []
   const recommended = list.slice(0, 6)
-  const newArrivals = list.slice(6, 12)
+  const newArrivals = getNewArrivals(list, 6)
 
   return (
     <>

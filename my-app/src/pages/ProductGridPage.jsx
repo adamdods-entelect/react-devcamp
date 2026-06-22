@@ -5,10 +5,11 @@ import useProducts from '../hooks/useProducts'
 import ProductCard from '../components/home/ProductCard'
 import BottomNav from '../components/home/BottomNav'
 
-function ProductGridPage({ title, range }) {
+function ProductGridPage({ title, range, select }) {
   const navigate = useNavigate()
   const { products, loading, error } = useProducts()
-  const list = (products || []).slice(range[0], range[1])
+  const all = products || []
+  const list = select ? select(all) : all.slice(range[0], range[1])
 
   return (
     <>
