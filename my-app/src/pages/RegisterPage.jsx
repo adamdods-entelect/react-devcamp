@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import EmailStep from '../components/register/EmailStep'
 import VerifyCodeStep from '../components/register/VerifyCodeStep'
@@ -7,6 +7,7 @@ import PasswordStep from '../components/register/PasswordStep'
 import useAuth from '../hooks/useAuth'
 import { registerCustomer } from '../services/registration'
 import { signInWithGoogle } from '../services/googleAuth'
+import { track } from '../services/analytics'
 
 const FULL_STEPS = ['email', 'verify', 'about', 'password']
 // Coming from Google we already have the email (verified by Google) and a derived
@@ -23,7 +24,7 @@ function RegisterPage() {
     // the button on this page's first step. Either way it flips us to the about-only flow.
     const [google, setGoogle] = useState(location.state?.google ?? null)
     const STEPS = google ? GOOGLE_STEPS : FULL_STEPS
-
+    
     const [step, setStep] = useState(0)
     const [data, setData] = useState(() =>
         google
@@ -35,6 +36,29 @@ function RegisterPage() {
               }
             : {}
     )
+
+    const startedRef = useRef(false)
+    const completedRef = useRef(false)
+    const stepRef = useRef(STEPS[step])
+
+    // Keep the latest step name available to the unload handler.
+    useEffect(() => {
+        stepRef.current = STEPS[step]
+    }, [step, STEPS])
+
+    useEffect(() => {
+        if (startedRef.current) return
+        startedRef.current = true
+        track('registration_started', { method: google ? 'google' : 'email' })
+    }, [google])
+
+    useEffect(() => {
+        const onUnload = () => {
+            if (!completedRef.current) track('registration_abandoned', { step: stepRef.current })
+        }
+        window.addEventListener('beforeunload', onUnload)
+        return () => window.removeEventListener('beforeunload', onUnload)
+    }, [])
 
     const handleGoogle = async () => {
         setError('')
@@ -66,6 +90,7 @@ function RegisterPage() {
     const next = (fields = {}) => {
         const merged = { ...data, ...fields }
         setData(merged)
+        track('registration_step_completed', { step: STEPS[step] })
         if (step < STEPS.length - 1) {
             setStep((s) => s + 1)
         } else {
@@ -74,8 +99,12 @@ function RegisterPage() {
     }
 
     const back = () => {
-        if (step === 0) navigate('/login')
-        else setStep((s) => s - 1)
+        if (step === 0) {
+            track('registration_abandoned', { step: STEPS[step] })
+            navigate('/login')
+        } else {
+            setStep((s) => s - 1)
+        }
     }
 
     const handleSubmit = async (all) => {
@@ -100,7 +129,9 @@ function RegisterPage() {
                 }
                 return
             }
-
+            
+            completedRef.current = true
+            track('registration_completed', { method: google ? 'google' : 'email' })
             login(result.token)
             navigate('/kyc', { state: { customerId: result.customer.id } })
         } catch {

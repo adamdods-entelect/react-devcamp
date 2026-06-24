@@ -1,15 +1,50 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { sendRegistrationOtp, verifyRegistrationOtp } from '../../services/otp'
 
 const LENGTH = 6
+const COOLDOWN = 60 // seconds the server enforces between sends; mirror it in the UI
 
 function VerifyCodeStep({ email, onNext, onBack }) {
-     const [digits, setDigits] = useState(Array(LENGTH).fill(''))
+  const [digits, setDigits] = useState(Array(LENGTH).fill(''))
   const [verifying, setVerifying] = useState(false)
+  const [sending, setSending] = useState(true)
+  const [error, setError] = useState('')
+  const [cooldown, setCooldown] = useState(0)
   const inputs = useRef([])
+  const sentRef = useRef(false)
 
-  const verify = () => {
+  // Ask the server to email a code when this step opens. The ref guard stops
+  // React StrictMode's double-invoke from sending (and overwriting) two codes.
+  useEffect(() => {
+    if (sentRef.current) return
+    sentRef.current = true
+    sendRegistrationOtp(email).then((res) => {
+      if (res.ok) setCooldown(COOLDOWN)
+      else setError('Could not send a code. Check your connection and try again.')
+      setSending(false)
+    })
+  }, [email])
+
+  // Tick the resend cooldown down to zero.
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const id = setTimeout(() => setCooldown((c) => Math.max(0, c - 1)), 1000)
+    return () => clearTimeout(id)
+  }, [cooldown])
+
+  const verify = async (code) => {
     setVerifying(true)
-    setTimeout(() => onNext(), 1200) // pretend to check the code with a server
+    setError('')
+    const res = await verifyRegistrationOtp(email, code)
+    if (res.ok) {
+      onNext()
+      return
+    }
+    // generic message — never reveals whether the account already exists
+    setError('Incorrect or expired code. If you already have an account, check your email to log in.')
+    setDigits(Array(LENGTH).fill(''))
+    setVerifying(false)
+    inputs.current[0]?.focus()
   }
 
   const setDigit = (i, value) => {
@@ -19,7 +54,7 @@ function VerifyCodeStep({ email, onNext, onBack }) {
     setDigits(nextDigits)
 
     if (char && i < LENGTH - 1) inputs.current[i + 1]?.focus() // auto-advance
-    if (nextDigits.every((d) => d !== '')) verify()             // all filled
+    if (nextDigits.every((d) => d !== '')) verify(nextDigits.join('')) // all filled
   }
 
   const handleKeyDown = (i, e) => {
@@ -35,7 +70,18 @@ function VerifyCodeStep({ email, onNext, onBack }) {
     text.split('').forEach((c, idx) => (nextDigits[idx] = c))
     setDigits(nextDigits)
     inputs.current[Math.min(text.length, LENGTH - 1)]?.focus()
-    if (text.length === LENGTH) verify()
+    if (text.length === LENGTH) verify(nextDigits.join(''))
+  }
+
+  const resend = async () => {
+    setDigits(Array(LENGTH).fill(''))
+    setError('')
+    setSending(true)
+    const res = await sendRegistrationOtp(email)
+    if (res.ok) setCooldown(COOLDOWN)
+    else setError('Could not send a code. Check your connection and try again.')
+    setSending(false)
+    inputs.current[0]?.focus()
   }
 
   if (verifying) {
@@ -47,11 +93,11 @@ function VerifyCodeStep({ email, onNext, onBack }) {
     )
   }
 
-   return (
+  return (
     <div className="mx-auto flex min-h-svh max-w-md flex-col px-6 py-10">
       <h1 className="mt-8 text-center text-2xl font-bold">Enter verification code</h1>
       <p className="mt-4 text-center text-gray-600">
-        We have a temporary login code to{' '}
+        {sending ? 'Sending a code to' : 'We sent a code to'}{' '}
         <span className="font-medium text-cyan-500">{email}</span>
       </p>
       <button onClick={onBack} className="mx-auto mt-1 text-sm text-gray-800 underline">
@@ -70,19 +116,23 @@ function VerifyCodeStep({ email, onNext, onBack }) {
             inputMode="numeric"
             maxLength={1}
             autoFocus={i === 0}
-            className="h-14 w-12 rounded-lg bg-gray-100 text-center text-xl font-semibold outline-none focus:ring-2 focus:ring-cyan-500"
+            disabled={sending}
+            className="h-14 w-12 rounded-lg bg-gray-100 text-center text-xl font-semibold outline-none focus:ring-2 focus:ring-cyan-500 disabled:opacity-50"
           />
         ))}
       </div>
+
+      {error && <p className="mt-4 text-center text-sm text-red-500">{error}</p>}
 
       <p className="mt-6 text-center text-sm text-gray-600">
         Haven&apos;t received your code?{' '}
         <button
           type="button"
-          onClick={() => setDigits(Array(LENGTH).fill(''))}
-          className="font-semibold text-cyan-500"
+          onClick={resend}
+          disabled={sending || cooldown > 0}
+          className="font-semibold text-cyan-500 disabled:opacity-50"
         >
-          Send again
+          {cooldown > 0 ? `Send again in ${cooldown}s` : 'Send again'}
         </button>
       </p>
     </div>

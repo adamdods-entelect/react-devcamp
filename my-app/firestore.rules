@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // OTP codes and the outgoing-mail queue are written and read ONLY by the
+    // Cloud Functions (the Admin SDK bypasses these rules). No client may touch
+    // them, so a generated code is never readable from the browser.
+    match /otps/{doc} {
+      allow read, write: if false;
+    }
+    match /otpThrottle/{doc} {
+      allow read, write: if false;
+    }
+    match /mail/{doc} {
+      allow read, write: if false;
+    }
+  }
+}
