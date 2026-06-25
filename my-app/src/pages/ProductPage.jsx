@@ -25,7 +25,7 @@ function ProductPage() {
       <TopBar name={product.name} />
       <div className="md:flex md:items-start md:gap-6">
         <div className="md:w-1/2">
-          <ProductImage imageUrl={product.imageUrl} discount={product.discount} />
+          <ProductImage productId={product.id} imageUrl={product.imageUrl} discount={product.discount} />
         </div>
         <div className="md:flex-1">
           <ProductInfo

@@ -1,4 +1,6 @@
-function ProductImage({ imageUrl, discount }) {
+import { productImage } from '../../utils/productImage'
+
+function ProductImage({ productId, imageUrl, discount }) {
     return (
         <div className="relative p-4">
             {discount && (
@@ -7,9 +9,9 @@ function ProductImage({ imageUrl, discount }) {
                 </span>
             )}
             <img
-                src={imageUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAPf_062JKWOBQr9rKxfyjLtlwzCn6Wwx_fJ6vQDIAgQ&s=10'}
+                src={imageUrl || productImage(productId)}
                 alt=""
-                className="block h-[260px] w-full rounded-lg object-cover md:h-[340px]"
+                className="mx-auto block aspect-square w-full max-w-md rounded-lg bg-white object-contain"
             />
         </div>
     )

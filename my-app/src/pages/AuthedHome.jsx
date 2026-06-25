@@ -16,7 +16,7 @@ function AuthedHome({ products, loading, error }) {
       <div className="md:hidden">
         <Header />
       </div>
-      <main className="mx-auto max-w-6xl px-4 pb-20 md:pb-8">
+      <main className="mx-auto max-w-7xl px-4 pb-20 md:px-6 md:pb-8">
         <FeaturedBanner loading={loading} />
 
         {error && (

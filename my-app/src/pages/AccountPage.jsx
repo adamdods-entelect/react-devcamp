@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { LogOut, User } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { LogOut, User, CheckCircle2, Circle } from 'lucide-react'
 import TopNav from '../components/home/TopNav'
 import BottomNav from '../components/home/BottomNav'
 import useAuth from '../hooks/useAuth'
 import { getProfile } from '../services/profile'
+import { getKycStatus } from '../services/kycStorage'
 import { auth } from '../services/firebase'
 
 // Shows last 4 digits of the SA ID, masking the rest.
@@ -19,6 +20,7 @@ function AccountPage() {
   const { status, logout } = useAuth()
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [kyc, setKyc] = useState(null) // null = loading, else { residence, selfie }
 
   useEffect(() => {
     let active = true
@@ -30,6 +32,16 @@ function AccountPage() {
       active = false
     }
   }, [])
+
+  // Once we know the customer id, check which KYC documents they've uploaded.
+  useEffect(() => {
+    if (!profile?.id) return
+    let active = true
+    getKycStatus(profile.id).then((s) => active && setKyc(s))
+    return () => {
+      active = false
+    }
+  }, [profile?.id])
 
   const handleLogout = async () => {
     await logout()
@@ -98,6 +110,24 @@ function AccountPage() {
           )}
         </div>
 
+        {/* KYC document status */}
+        {!isGuest && profile?.id && (
+          <div className="mt-8">
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-gray-700">Documents</h2>
+              {kyc && !(kyc.residence && kyc.selfie) && (
+                <Link to="/kyc" className="text-sm font-semibold text-cyan-600">
+                  Verify now
+                </Link>
+              )}
+            </div>
+            <dl className="divide-y divide-gray-200 rounded-xl border border-gray-200">
+              <DocRow label="Proof of residence" url={kyc?.residence} loading={!kyc} />
+              <DocRow label="Selfie" url={kyc?.selfie} loading={!kyc} />
+            </dl>
+          </div>
+        )}
+
         <button
           onClick={handleLogout}
           className="mt-8 flex w-full items-center justify-center gap-2 rounded-full border border-red-200 py-3 font-semibold text-red-600"
@@ -108,6 +138,30 @@ function AccountPage() {
       </main>
       <BottomNav />
     </>
+  )
+}
+
+function DocRow({ label, url, loading }) {
+  return (
+    <div className="flex items-center justify-between px-4 py-3">
+      <span className="text-sm text-gray-700">{label}</span>
+      {loading ? (
+        <span className="h-4 w-24 animate-pulse rounded bg-gray-100" />
+      ) : url ? (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 text-sm font-medium text-cyan-600"
+        >
+          <CheckCircle2 className="h-4 w-4 text-green-600" /> View
+        </a>
+      ) : (
+        <span className="flex items-center gap-1.5 text-sm text-gray-400">
+          <Circle className="h-4 w-4" /> Not uploaded
+        </span>
+      )}
+    </div>
   )
 }
 

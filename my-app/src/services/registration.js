@@ -1,6 +1,23 @@
+import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { requestToken } from './authService'
+import { auth } from './firebase'
 
 const CUSTOMER_TYPE_INDIVIDUAL = 1
+
+// Mirror the account into Firebase Auth, created at the same time as the backend
+// account (on password submit). This is what the OTP "already exists -> log in"
+// check looks for, and it gives the user a Firebase session for Storage/KYC.
+// Best-effort: a failure here (e.g. provider disabled, or the email is already a
+// Firebase user from a Google sign-in) must never fail a completed registration.
+async function ensureFirebaseUser(email, password) {
+  try {
+    await createUserWithEmailAndPassword(auth, email, password)
+  } catch (err) {
+    if (err.code !== 'auth/email-already-in-use') {
+      console.error('Firebase user creation failed:', err)
+    }
+  }
+}
 
 // Step 1: create the login credentials (auth service).
 async function createUser(username, password) {
@@ -46,10 +63,10 @@ export async function registerCustomer({
   const user = await createUser(email, password)
   if (!user.ok) return user
 
-  const auth = await requestToken(email, password)
-  if (!auth.ok) return { ok: false, reason: 'auth' }
+  const tokenResult = await requestToken(email, password)
+  if (!tokenResult.ok) return { ok: false, reason: 'auth' }
 
-  const profile = await createProfile(auth.token, {
+  const profile = await createProfile(tokenResult.token, {
     email,
     firstName,
     lastName,
@@ -58,5 +75,8 @@ export async function registerCustomer({
   })
   if (!profile.ok) return profile
 
-  return { ok: true, token: auth.token, customer: profile.customer }
+  // Backend account is in place — mirror it into Firebase Auth (best-effort).
+  await ensureFirebaseUser(email, password)
+
+  return { ok: true, token: tokenResult.token, customer: profile.customer }
 }

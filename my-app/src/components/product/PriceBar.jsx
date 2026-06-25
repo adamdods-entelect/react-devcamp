@@ -1,28 +1,28 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
-import useSubscriptions from '../../hooks/useSubscriptions'
-import { addSubscription } from '../../services/subscriptions'
+import useCart from '../../hooks/useCart'
+import { addToCart } from '../../services/cart'
 import CreateAccountSheet from './CreateAccountSheet'
 
 function PriceBar({ product }) {
     const { status } = useAuth()
     const navigate = useNavigate()
-    const subscriptions = useSubscriptions()
+    const cart = useCart()
     const [showSheet, setShowSheet] = useState(false)
 
-    const subscribed = subscriptions.some((s) => s.id === product.id)
+    const inCart = cart.some((i) => i.id === product.id)
 
     const handleClick = () => {
         if (status === 'guest') {
             setShowSheet(true) // guests must create an account first
             return
         }
-        if (subscribed) {
-            navigate('/subscriptions')
+        if (inCart) {
+            navigate('/cart')
             return
         }
-        addSubscription(product)
+        addToCart(product)
     }
 
     return (
@@ -37,7 +37,7 @@ function PriceBar({ product }) {
                     onClick={handleClick}
                     className="rounded-3xl bg-gradient-to-r from-[#2f6bff] to-[#00c2ff] px-7 py-3 font-semibold text-white"
                 >
-                    {subscribed ? 'Subscribed — View' : 'Add to cart'}
+                    {inCart ? 'In cart — View' : 'Add to cart'}
                 </button>
             </footer>
             <CreateAccountSheet open={showSheet} onClose={() => setShowSheet(false)} />

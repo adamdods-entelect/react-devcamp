@@ -18,13 +18,28 @@ export async function deriveBackendPassword(uid) {
 // Runs the Google sign-in popup, then tries to log into the backend with the
 // derived password. Resolves to one of:
 //   { kind: 'existing', user, token }
-//       backend account already provisioned -> caller stores the JWT and is done.
+//       this email signed up with Google before -> caller stores the JWT, done.
+//   { kind: 'exists', email }
+//       this email registered with email + password, not Google. Google can't
+//       reproduce that password (and the backend has no reset), so the caller
+//       sends them to email/password sign-in instead.
 //   { kind: 'new', user, email, firstName, lastName, password }
-//       no backend account yet -> caller routes into the profile step to collect
+//       brand-new Google user -> caller routes into the profile step to collect
 //       the ID number, then provisions the backend with this email + password.
 // Throws on a cancelled popup (auth/* code) or a backend/server failure (err.reason).
 export async function signInWithGoogle() {
-  const { user } = await signInWithPopup(auth, googleProvider)
+  let user
+  try {
+    ;({ user } = await signInWithPopup(auth, googleProvider))
+  } catch (err) {
+    // Enumeration-protection projects throw this instead of linking when the
+    // email already belongs to a password account.
+    if (err.code === 'auth/account-exists-with-different-credential') {
+      return { kind: 'exists', email: err.customData?.email }
+    }
+    throw err
+  }
+
   const password = await deriveBackendPassword(user.uid)
   const [firstName = '', lastName = ''] = (user.displayName || '').trim().split(/\s+/)
 
@@ -33,7 +48,14 @@ export async function signInWithGoogle() {
     return { kind: 'existing', user, token: result.token }
   }
   if (result.reason === 'invalid') {
-    // unknown credentials on the backend -> this Google user isn't provisioned yet
+    // Derived password didn't work. If this Firebase account also carries a
+    // password credential, the email was registered with email + password
+    // (Google links to the same account), so they must sign in that way.
+    const hasPassword = user.providerData.some((p) => p.providerId === 'password')
+    if (hasPassword) {
+      return { kind: 'exists', email: user.email }
+    }
+    // genuinely new Google user -> provision the backend in the profile step
     return { kind: 'new', user, email: user.email, firstName, lastName, password }
   }
 

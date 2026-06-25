@@ -1,21 +1,5 @@
-import { useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
-import HomePage from '../pages/HomePage'
-import CreateAccountSheet from './product/CreateAccountSheet'
-
-// Shows the home page with the sign-up sheet floating over it (like ProductPage);
-// dismissing the sheet drops the guest back on the home page.
-function GuestPrompt() {
-    const [open, setOpen] = useState(true)
-    const navigate = useNavigate()
-    return (
-        <>
-            <HomePage />
-            <CreateAccountSheet open={open} onClose={() => { setOpen(false); navigate('/') }} />
-        </>
-    )
-}
 
 export default function ProtectedRoute({ children, allowGuest = true }) {
     const { status } = useAuth()
@@ -24,9 +8,10 @@ export default function ProtectedRoute({ children, allowGuest = true }) {
         return <Navigate to="/login" replace />
     }
     // Guests can browse, but routes that need a real account (e.g. account,
-    // subscriptions) prompt them to sign up / log in over the home page.
+    // subscriptions) aren't reachable. The nav intercepts guest clicks and shows
+    // the sign-up sheet in-place; a guest landing here via direct URL goes home.
     if (!allowGuest && status === 'guest') {
-        return <GuestPrompt />
+        return <Navigate to="/" replace />
     }
     return children
 }

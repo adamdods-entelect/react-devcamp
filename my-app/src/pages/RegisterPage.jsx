@@ -69,6 +69,13 @@ function RegisterPage() {
                 navigate('/')
                 return
             }
+            if (res.kind === 'exists') {
+                // email was registered with a password -> Google can't log into it
+                navigate('/login/signin', {
+                    state: { notice: 'You already registered this email with a password. Please log in below.' },
+                })
+                return
+            }
             // new Google user: switch this page to the about-only flow, pre-filled
             const gd = {
                 email: res.email,

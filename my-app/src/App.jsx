@@ -12,6 +12,7 @@ import ProductPage from './pages/ProductPage'
 import ProductGridPage from './pages/ProductGridPage'
 import AccountPage from './pages/AccountPage'
 import SubscriptionsPage from './pages/SubscriptionsPage'
+import CartPage from './pages/CartPage'
 import { getNewArrivals } from './utils/productSections'
 
 function App() {
@@ -75,6 +76,14 @@ function App() {
         element={
           <ProtectedRoute allowGuest={false}>
             <SubscriptionsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/cart"
+        element={
+          <ProtectedRoute>
+            <CartPage />
           </ProtectedRoute>
         }
       />

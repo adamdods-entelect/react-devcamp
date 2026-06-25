@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import logo from '../assets/logo-login.png'
 import useAuth from '../hooks/useAuth'
 import { requestToken } from '../services/authService'
@@ -13,8 +13,10 @@ function SignInPage() {
     formState: { isSubmitting, isValid },
   } = useForm({ mode: 'onChange' })
   const navigate = useNavigate()
+  const location = useLocation()
   const { login } = useAuth()
   const [authError, setAuthError] = useState('')
+  const notice = location.state?.notice // e.g. redirected here from the Google flow
 
   const onSubmit = async ({ email, password }) => {
     setAuthError('')
@@ -49,7 +51,13 @@ function SignInPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="mx-auto mt-12 w-full max-w-sm space-y-4" noValidate>
+      {notice && (
+        <div className="mx-auto mt-8 w-full max-w-sm rounded-md bg-cyan-500/15 px-4 py-3 text-center text-sm text-cyan-200">
+          {notice}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} className="mx-auto mt-6 w-full max-w-sm space-y-4" noValidate>
         {/* email */}
         <div className="relative">
           <label

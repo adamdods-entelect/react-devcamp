@@ -21,6 +21,11 @@ function LoginPage() {
       if (res.kind === 'existing') {
         login(res.token) // returning user: backend JWT + Firebase session both active
         navigate('/')
+      } else if (res.kind === 'exists') {
+        // email was registered with a password -> Google can't log into it
+        navigate('/login/signin', {
+          state: { notice: 'You already registered this email with a password. Please log in below.' },
+        })
       } else {
         // new Google user: collect the ID number in the profile step, then provision the backend
         navigate('/register', {

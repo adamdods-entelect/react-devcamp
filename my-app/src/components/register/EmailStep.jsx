@@ -13,82 +13,71 @@ function EmailStep({ onNext, onGoogle, defaultEmail = '' }) {
     const submit = ({ email }) => onNext({ email })
 
     return (
-    <main className="flex min-h-svh flex-col bg-[#1a2238]">
-      {/* dark top strip */}
-      <div className="h-24 shrink-0" />
+    <div className="mx-auto flex min-h-svh max-w-md flex-col px-6 py-10">
+      <h1 className="mt-12 text-center text-2xl font-bold">Welcome to InsureTechGuard</h1>
+      <p className="mt-2 text-center text-gray-500">Create your account</p>
 
-      {/* white sheet */}
-      <div className="flex flex-1 flex-col rounded-t-3xl bg-white px-6 pb-8 pt-3">
-        {/* drag handle */}
-        <div className="mx-auto h-1.5 w-10 rounded-full bg-gray-300" />
+      {/* Continue with Google — provisions/links the backend account via the derived password */}
+      <button
+        type="button"
+        onClick={onGoogle}
+        className="mt-8 flex w-full items-center justify-center gap-3 rounded-md border border-gray-300 py-3 font-medium text-gray-700"
+      >
+        <GoogleIcon />
+        Continue with Google
+      </button>
 
-        <h1 className="mt-10 text-center text-2xl font-bold text-gray-900">Create your account</h1>
-        <p className="mx-auto mt-3 max-w-xs text-center text-gray-500">
-          Create a profile, browse and subscribe to our range of products.
-        </p>
+      {/* "or" divider */}
+      <div className="my-5 flex items-center gap-3 text-sm text-gray-400">
+        <span className="h-px flex-1 bg-gray-200" />
+        or
+        <span className="h-px flex-1 bg-gray-200" />
+      </div>
 
-        {/* Continue with Google — provisions/links the backend account via the derived password */}
-        <button
-          type="button"
-          onClick={onGoogle}
-          className="mt-6 flex w-full items-center justify-center gap-3 rounded-md border border-gray-300 py-3 font-medium text-gray-700"
-        >
-          <GoogleIcon />
-          Continue with Google
-        </button>
-
-        {/* "or" divider */}
-        <div className="my-5 flex items-center gap-3 text-sm text-gray-400">
-          <span className="h-px flex-1 bg-gray-200" />
-          or
-          <span className="h-px flex-1 bg-gray-200" />
+      <form onSubmit={handleSubmit(submit)} className="flex flex-1 flex-col" noValidate>
+        {/* email with floating label */}
+        <div className="relative">
+          <label htmlFor="email" className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="Enter email address"
+            className="w-full rounded-md border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-400 outline-none focus:border-cyan-500"
+            {...register('email', { required: true, pattern: EMAIL_PATTERN })}
+          />
         </div>
 
-        <form onSubmit={handleSubmit(submit)} className="flex flex-1 flex-col" noValidate>
-          {/* email with floating label */}
-          <div className="relative">
-            <label htmlFor="email" className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder="Enter email address"
-              className="w-full rounded-md border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-400 outline-none focus:border-cyan-500"
-              {...register('email', { required: true, pattern: EMAIL_PATTERN })}
-            />
-          </div>
+        {/* grey until a valid email is entered, then gradient */}
+        <button
+          type="submit"
+          disabled={!isValid}
+          className={`mt-5 w-full rounded-full py-3 font-semibold transition-colors ${
+            isValid
+              ? 'bg-gradient-to-r from-blue-600 to-cyan-400 text-white'
+              : 'bg-gray-200 text-gray-400'
+          }`}
+        >
+          Next
+        </button>
 
-          {/* grey until a valid email is entered, then gradient */}
-          <button
-            type="submit"
-            disabled={!isValid}
-            className={`mt-5 w-full rounded-full py-3 font-semibold transition-colors ${
-              isValid
-                ? 'bg-gradient-to-r from-blue-600 to-cyan-400 text-white'
-                : 'bg-gray-200 text-gray-400'
-            }`}
-          >
-            Next
-          </button>
+        <p className="mt-5 text-center text-sm text-gray-700">
+          Already have an account?{' '}
+          <Link to="/login/signin" className="font-semibold text-cyan-500">
+            Log in
+          </Link>
+        </p>
 
-          <p className="mt-5 text-center text-sm text-gray-700">
-            Already have an account?{' '}
-            <Link to="/login/signin" className="font-semibold text-cyan-500">
-              Log in
-            </Link>
-          </p>
-
-          <p className="mx-auto mt-auto max-w-xs pt-8 text-center text-xs text-gray-400">
-            By continuing, you agree to our{' '}
-            <span className="font-semibold text-gray-500">Terms of Service</span> and acknowledge that you
-            have read our <span className="font-semibold text-gray-500">Privacy Policy</span> to learn how we
-            collect, use, and share your data.
-          </p>
-        </form>
-      </div>
-    </main>
+        <p className="mx-auto mt-auto max-w-xs pt-8 text-center text-xs text-gray-400">
+          By continuing, you agree to our{' '}
+          <span className="font-semibold text-gray-500">Terms of Service</span> and acknowledge that you
+          have read our <span className="font-semibold text-gray-500">Privacy Policy</span> to learn how we
+          collect, use, and share your data.
+        </p>
+      </form>
+    </div>
   )
 }
 

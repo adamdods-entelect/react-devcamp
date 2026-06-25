@@ -70,7 +70,7 @@ function CameraCaptureFlow({
                 <X className="h-7 w-7" />
             </button>
 
-            <div className={isOval ? 'flex flex-1 flex-col items-center justify-center px-6' : 'relative flex-1'}>
+            <div className={isOval ? 'flex flex-1 flex-col items-center justify-center px-6' : 'relative flex-1 min-h-0'}>
                 <div className={frameClass}>
                     {shot ? (
                         <img src={shot} alt="Captured preview" className="h-full w-full object-cover" />

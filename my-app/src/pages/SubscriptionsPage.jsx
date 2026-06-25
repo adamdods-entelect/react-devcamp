@@ -4,6 +4,7 @@ import TopNav from '../components/home/TopNav'
 import BottomNav from '../components/home/BottomNav'
 import useSubscriptions from '../hooks/useSubscriptions'
 import { removeSubscription } from '../services/subscriptions'
+import { productImage } from '../utils/productImage'
 
 function SubscriptionsPage() {
   const subscriptions = useSubscriptions()
@@ -11,18 +12,18 @@ function SubscriptionsPage() {
   return (
     <>
       <TopNav />
-      <main className="mx-auto max-w-2xl px-4 pb-24 pt-6 md:pb-8">
+      <main className="mx-auto max-w-4xl px-4 pb-24 pt-6 md:pb-8">
         <h1 className="text-2xl font-bold">Your subscriptions</h1>
 
         {subscriptions.length === 0 ? (
           <EmptyState />
         ) : (
-          <ul className="mt-6 space-y-3">
+          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {subscriptions.map((s) => (
               <li key={s.id} className="flex items-center gap-4 rounded-xl border border-gray-200 p-3">
                 <Link to={`/products/${s.id}`} className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-50">
                   <img
-                    src={s.imageUrl || 'https://picsum.photos/200'}
+                    src={productImage(s)}
                     alt=""
                     className="h-full w-full object-contain"
                   />

@@ -31,7 +31,7 @@ function HomePage() {
       <div className="md:hidden">
         <Header />
       </div>
-      <main className="mx-auto max-w-6xl px-4 pb-20 md:pb-8">
+      <main className="mx-auto max-w-7xl px-4 pb-20 md:px-6 md:pb-8">
         <FeaturedBanner loading={loading} />
 
         <h1 className="mb-3 mt-4 text-2xl font-bold">Discover</h1>
@@ -54,7 +54,7 @@ function HomePage() {
       )}
 
       {products && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {visibleProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

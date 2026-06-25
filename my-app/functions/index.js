@@ -103,9 +103,9 @@ export const requestRegistrationOtp = onCall(async (request) => {
   return { ok: true }
 })
 
-// Step 2: verify the typed code server-side. On success we create the verified
-// Firebase user and return a custom token so the client can sign in; the browser
-// then provisions the backend account (reusing the Google derived-password flow).
+// Step 2: verify the typed code server-side. This only proves the user owns the
+// email — the Firebase user and backend account are both created later, when the
+// user submits the password step (see registration.js).
 export const verifyOtp = onCall(async (request) => {
   const email = String(request.data?.email || '').trim().toLowerCase()
   const code = String(request.data?.code || '').trim()
@@ -133,15 +133,7 @@ export const verifyOtp = onCall(async (request) => {
     throw new HttpsError('permission-denied', 'Incorrect or expired code.')
   }
 
-  // Code matched. Register the email in Firebase Auth so the "already exists"
-  // branch works next time. Best-effort — never fail a valid code over this.
-  try {
-    await getAuth().createUser({ email, emailVerified: true })
-  } catch (err) {
-    if (err.code !== 'auth/email-already-exists') {
-      console.error('createUser failed after OTP verify:', err)
-    }
-  }
+  // Code matched. The account itself is created at the password step, not here.
   await ref.delete()
   return { ok: true }
 })

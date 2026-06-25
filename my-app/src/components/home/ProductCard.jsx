@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { productImage } from '../../utils/productImage'
 
 function ProductCard({ product }) {
   return (
@@ -8,7 +9,7 @@ function ProductCard({ product }) {
     >
       <div className="aspect-square overflow-hidden rounded-lg bg-white">
         <img
-          src={product.imageUrl || 'https://picsum.photos/300'}
+          src={productImage(product)}
           alt={product.name}
           className="h-full w-full object-contain"
         />

@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import useProducts from '../hooks/useProducts'
 import ProductCard from '../components/home/ProductCard'
 import BottomNav from '../components/home/BottomNav'
+import TopNav from '../components/home/TopNav'
 
 function ProductGridPage({ title, range, select }) {
   const navigate = useNavigate()
@@ -13,12 +14,15 @@ function ProductGridPage({ title, range, select }) {
 
   return (
     <>
-      <header className="flex items-center gap-3 px-4 py-4">
+      <TopNav />
+      {/* mobile back header (desktop uses TopNav above) */}
+      <header className="flex items-center gap-3 px-4 py-4 md:hidden">
         <button onClick={() => navigate(-1)} aria-label="Back">
           <ArrowLeft size={24} />
         </button>
         <h1 className="text-xl font-bold">{title}</h1>
       </header>
+      <h1 className="mx-auto hidden max-w-6xl px-4 pt-6 text-2xl font-bold md:block">{title}</h1>
 
       <main className="mx-auto max-w-6xl px-4 pb-20">
         {error && (
