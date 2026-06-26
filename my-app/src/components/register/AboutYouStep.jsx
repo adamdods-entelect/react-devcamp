@@ -1,6 +1,5 @@
-import { useForm } from 'react-hook-form'
-
-const SA_ID_PATTERN = /^\d{13}$/
+import { useForm, useWatch } from 'react-hook-form'
+import { isValidSaId } from '../../utils/saId'
 
 // Screens 18–19. Collects firstName, lastName, idNumber.
 // Calls onNext({ firstName, lastName, idNumber }) when all are valid.
@@ -8,10 +7,14 @@ function AboutYouStep({ onNext, defaultValues = {} }) {
   const {
     register,
     handleSubmit,
-    formState: { isValid },
+    control,
+    formState: { isValid, errors },
   } = useForm({ mode: 'onChange', defaultValues })
 
   const submit = (values) => onNext(values)
+
+  const idValue = useWatch({ control, name: 'idNumber' }) ?? ''
+  const idValid = isValidSaId(idValue)
 
   return (
     <div className="mx-auto flex min-h-svh max-w-md flex-col px-6 py-10">
@@ -26,7 +29,12 @@ function AboutYouStep({ onNext, defaultValues = {} }) {
             id="idNumber"
             label="ID number"
             inputMode="numeric"
-            field={register('idNumber', { required: true, pattern: SA_ID_PATTERN })}
+            error={errors.idNumber?.message}
+            valid={idValid}
+            field={register('idNumber', {
+              required: 'ID number is required',
+              validate: (value) => isValidSaId(value) || 'Enter a valid SA ID number',
+            })}
           />
         </div>
 
@@ -46,18 +54,33 @@ function AboutYouStep({ onNext, defaultValues = {} }) {
   )
 }
 
-function Field({ id, label, field, inputMode }) {
+function Field({ id, label, field, inputMode, error, valid }) {
+  const borderClass = error
+    ? 'border-red-500 focus:border-red-500'
+    : valid
+      ? 'border-green-500 focus:border-green-500'
+      : 'border-gray-300 focus:border-cyan-500'
+
   return (
-    <div className="relative">
-      <label htmlFor={id} className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500">
-        {label}
-      </label>
-      <input
-        id={id}
-        inputMode={inputMode}
-        className="w-full rounded-md border border-gray-300 px-3 py-3 text-gray-900 outline-none focus:border-cyan-500"
-        {...field}
-      />
+    <div>
+      <div className="relative">
+        <label htmlFor={id} className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500">
+          {label}
+        </label>
+        <input
+          id={id}
+          inputMode={inputMode}
+          aria-invalid={error ? 'true' : 'false'}
+          className={`w-full rounded-md border px-3 py-3 pr-10 text-gray-900 outline-none ${borderClass}`}
+          {...field}
+        />
+        {valid && !error && (
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" aria-hidden="true">
+            ✓
+          </span>
+        )}
+      </div>
+      {error && <p className="mt-1 px-1 text-xs text-red-500">{error}</p>}
     </div>
   )
 }
