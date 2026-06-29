@@ -1,17 +1,38 @@
+import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { isValidSaId } from '../../utils/saId'
 
-// Screens 18–19. Collects firstName, lastName, idNumber.
-// Calls onNext({ firstName, lastName, idNumber }) when all are valid.
+// Screens 18–19. Collects firstName, lastName, idNumber and the customer type.
+// The customer type gates which products the user can take up (BRS §13.4), so we
+// fetch the real type ids from the (unauthenticated) /client/v1/types endpoint
+// rather than hardcoding them. Calls onNext({ firstName, lastName, idNumber,
+// customerTypeId }) when all are valid.
 function AboutYouStep({ onNext, defaultValues = {} }) {
   const {
     register,
     handleSubmit,
     control,
     formState: { isValid, errors },
-  } = useForm({ mode: 'onChange', defaultValues })
+  } = useForm({ mode: 'onChange', defaultValues: { customerTypeId: '1', ...defaultValues } })
 
-  const submit = (values) => onNext(values)
+  const [customerTypes, setCustomerTypes] = useState([])
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/client/v1/types')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return
+        // SYSTEM is for system-to-system integration — not a real customer choice.
+        setCustomerTypes((data.customerTypes ?? []).filter((t) => t.name !== 'SYSTEM'))
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const submit = (values) => onNext({ ...values, customerTypeId: Number(values.customerTypeId) })
 
   const idValue = useWatch({ control, name: 'idNumber' }) ?? ''
   const idValid = isValidSaId(idValue)
@@ -36,6 +57,25 @@ function AboutYouStep({ onNext, defaultValues = {} }) {
               validate: (value) => isValidSaId(value) || 'Enter a valid SA ID number',
             })}
           />
+          <div className="relative">
+            <label
+              htmlFor="customerTypeId"
+              className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500"
+            >
+              Account type
+            </label>
+            <select
+              id="customerTypeId"
+              className="w-full appearance-none rounded-md border border-gray-300 px-3 py-3 text-gray-900 outline-none focus:border-cyan-500"
+              {...register('customerTypeId', { required: true })}
+            >
+              {customerTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <button

@@ -13,6 +13,10 @@ import ProductGridPage from './pages/ProductGridPage'
 import AccountPage from './pages/AccountPage'
 import SubscriptionsPage from './pages/SubscriptionsPage'
 import CartPage from './pages/CartPage'
+import PaymentMethodPage from './pages/checkout/PaymentMethodPage'
+import AddCardPage from './pages/checkout/AddCardPage'
+import OrderSummaryPage from './pages/checkout/OrderSummaryPage'
+import OrderSuccessPage from './pages/checkout/OrderSuccessPage'
 import { getNewArrivals } from './utils/productSections'
 
 function App() {
@@ -51,7 +55,7 @@ function App() {
         path="/recommended"
         element={
           <ProtectedRoute>
-            <ProductGridPage title="Recommended to you" range={[0, 6]} />
+            <ProductGridPage title="Recommended to you" eligibleOnly />
           </ProtectedRoute>
         }
       />
@@ -84,6 +88,38 @@ function App() {
         element={
           <ProtectedRoute>
             <CartPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/checkout"
+        element={
+          <ProtectedRoute allowGuest={false}>
+            <PaymentMethodPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/checkout/add-card"
+        element={
+          <ProtectedRoute allowGuest={false}>
+            <AddCardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/checkout/summary"
+        element={
+          <ProtectedRoute allowGuest={false}>
+            <OrderSummaryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/checkout/success"
+        element={
+          <ProtectedRoute allowGuest={false}>
+            <OrderSuccessPage />
           </ProtectedRoute>
         }
       />

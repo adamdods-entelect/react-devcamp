@@ -124,6 +124,7 @@ function RegisterPage() {
                 firstName: all.firstName,
                 lastName: all.lastName,
                 idNumber: all.idNumber,
+                customerTypeId: all.customerTypeId,
             })
 
             if (!result.ok) {

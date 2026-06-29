@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react'
-import { getCart } from '../services/cart'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '../services/firebase'
+import { subscribe } from '../services/cart'
 
-// Reactive view of the cart. Re-reads on same-tab writes ('cart-changed') and
-// on changes from other tabs ('storage').
 export default function useCart() {
-  const [items, setItems] = useState(getCart)
+  const [items, setItems] = useState([])
 
   useEffect(() => {
-    const refresh = () => setItems(getCart())
-    window.addEventListener('cart-changed', refresh)
-    window.addEventListener('storage', refresh)
+    let unsubscribeCart = subscribe(setItems)
+    const unsubscribeAuth = onAuthStateChanged(auth, () => {
+      unsubscribeCart()
+      unsubscribeCart = subscribe(setItems)
+    })
     return () => {
-      window.removeEventListener('cart-changed', refresh)
-      window.removeEventListener('storage', refresh)
+      unsubscribeCart()
+      unsubscribeAuth()
     }
   }, [])
 

@@ -3,11 +3,14 @@ import Header from '../components/home/Header'
 import FeaturedBanner from '../components/home/FeaturedBanner'
 import ProductRow from '../components/home/ProductRow'
 import BottomNav from '../components/home/BottomNav'
+import useEligibleProducts from '../hooks/useEligibleProducts'
 import { getNewArrivals } from '../utils/productSections'
 
 function AuthedHome({ products, loading, error }) {
   const list = products || []
-  const recommended = list.slice(0, 6)
+  // Recommended = products this customer is actually eligible to take up.
+  const { products: eligible, loading: eligLoading } = useEligibleProducts(list, true)
+  const recommended = eligible.slice(0, 6)
   const newArrivals = getNewArrivals(list, 6)
 
   return (
@@ -27,7 +30,7 @@ function AuthedHome({ products, loading, error }) {
           title="Recommended for you"
           viewAllTo="/recommended"
           products={recommended}
-          loading={loading}
+          loading={loading || eligLoading}
         />
         <ProductRow
           title="New arrivals"

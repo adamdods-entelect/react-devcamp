@@ -4,6 +4,34 @@ import { auth } from './firebase'
 
 const CUSTOMER_TYPE_INDIVIDUAL = 1
 
+// To take up a product a customer needs a *qualifying account* (BRS §13.3/FR6),
+// not just the right customer type. We provision a sensible default account for
+// the chosen customer type at registration so products become eligible:
+//   INDIVIDUAL -> Gold Cheque (qualifies retail insurance, device, investments)
+//   commercial types -> SME Checking (qualifies commercial products)
+// Account type ids come from /client/v1/types.
+const DEFAULT_ACCOUNT_BY_CUSTOMER_TYPE = {
+  1: 1, // INDIVIDUAL  -> Gold Cheque Account
+  2: 6, // SOLE PROP   -> SME Checking Account
+  3: 6, // NON-PROFIT  -> SME Checking Account
+  4: 6, // CIPC        -> SME Checking Account
+}
+
+// Link an account type to the logged-in customer's profile (PUT, returns 204).
+// Best-effort: a failure here only means some products stay ineligible, so it
+// must not fail an otherwise-complete registration.
+async function linkDefaultAccount(token, customerTypeId) {
+  const accountTypeId = DEFAULT_ACCOUNT_BY_CUSTOMER_TYPE[customerTypeId] ?? 1
+  try {
+    await fetch(`/client/v1/profile/accounts/${accountTypeId}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  } catch (err) {
+    console.error('Linking default account failed:', err)
+  }
+}
+
 // Mirror the account into Firebase Auth, created at the same time as the backend
 // account (on password submit). This is what the OTP "already exists -> log in"
 // check looks for, and it gives the user a Firebase session for Storage/KYC.
@@ -74,6 +102,9 @@ export async function registerCustomer({
     customerTypeId,
   })
   if (!profile.ok) return profile
+
+  // Open a qualifying account so the customer can actually take up products.
+  await linkDefaultAccount(tokenResult.token, customerTypeId)
 
   // Backend account is in place — mirror it into Firebase Auth (best-effort).
   await ensureFirebaseUser(email, password)

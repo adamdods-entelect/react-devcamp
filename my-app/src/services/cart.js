@@ -1,62 +1,30 @@
-// localStorage-backed shopping cart (Milestone 6 data persistence).
-// Items are keyed by product id + billing type, so the same product can appear
-// as both a "monthly" and a "once" line. Writes dispatch 'cart-changed' so any
-// mounted useCart re-reads.
-const KEY = 'cart'
+import { auth } from './firebase'
+import * as local from './cartLocal'
+import * as remote from './cartRemote'
 
-function read() {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
-
-function write(list) {
-  localStorage.setItem(KEY, JSON.stringify(list))
-  window.dispatchEvent(new Event('cart-changed'))
-}
-
-const sameLine = (i, id, billing) => i.id === id && i.billing === billing
-
-export function getCart() {
-  return read()
-}
+const uid = () => auth.currentUser?.uid ?? null
 
 export function addToCart(product, billing = 'monthly') {
-  const list = read()
-  const existing = list.find((i) => sameLine(i, product.id, billing))
-  const next = existing
-    ? list.map((i) => (sameLine(i, product.id, billing) ? { ...i, qty: i.qty + 1 } : i))
-    : [
-        ...list,
-        {
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          imageUrl: product.imageUrl,
-          billing, // 'monthly' | 'once'
-          qty: 1,
-        },
-      ]
-  write(next)
-  return next
+    const id = uid()
+    return id ? remote.addRemote(id, product, billing) : local.addLocal(product, billing)
 }
 
-export function setQty(id, billing, qty) {
-  if (qty <= 0) return removeFromCart(id, billing)
-  const next = read().map((i) => (sameLine(i, id, billing) ? { ...i, qty } : i))
-  write(next)
-  return next
+export function setQty(itemId, billing, qty) {
+    const id = uid()
+    return id ? remote.setQtyRemote(id, itemId, billing, qty) :local.setQtyLocal(itemId, billing, qty)
 }
 
-export function removeFromCart(id, billing) {
-  const next = read().filter((i) => !sameLine(i, id, billing))
-  write(next)
-  return next
+export function removeFromCart(itemId, billing) {
+    const id = uid()
+    return id ? remote.removeRemote(id, itemId, billing) : local.removeLocal(itemId, billing)
 }
 
 export function clearCart() {
-  write([])
+    const id = uid()
+    return id ? remote.clearRemote(id) : local.clearLocal()
+}
+
+export function subscribe(cb) {
+    const id = uid()
+    return id ? remote.subscribeRemote(id, cb) : local.subscribeLocal(cb)
 }

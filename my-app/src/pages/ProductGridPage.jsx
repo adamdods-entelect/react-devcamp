@@ -2,15 +2,24 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
 import useProducts from '../hooks/useProducts'
+import useAuth from '../hooks/useAuth'
+import useEligibleProducts from '../hooks/useEligibleProducts'
 import ProductCard from '../components/home/ProductCard'
 import BottomNav from '../components/home/BottomNav'
 import TopNav from '../components/home/TopNav'
 
-function ProductGridPage({ title, range, select }) {
+function ProductGridPage({ title, range, select, eligibleOnly = false }) {
   const navigate = useNavigate()
+  const { status } = useAuth()
   const { products, loading, error } = useProducts()
   const all = products || []
-  const list = select ? select(all) : all.slice(range[0], range[1])
+  const base = select ? select(all) : range ? all.slice(range[0], range[1]) : all
+  // Eligibility can only be checked for a logged-in customer; guests see all.
+  const { products: list, loading: eligLoading } = useEligibleProducts(
+    base,
+    eligibleOnly && status === 'authenticated'
+  )
+  const showLoading = loading || eligLoading
 
   return (
     <>
@@ -29,7 +38,7 @@ function ProductGridPage({ title, range, select }) {
           <p className="text-sm text-red-500">Couldn&apos;t load products: {error}</p>
         )}
 
-        {loading ? (
+        {showLoading ? (
           <div className="grid animate-pulse grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="rounded-xl border border-gray-200 p-3">

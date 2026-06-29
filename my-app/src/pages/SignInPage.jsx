@@ -4,6 +4,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import logo from '../assets/logo-login.png'
 import useAuth from '../hooks/useAuth'
 import { requestToken } from '../services/authService'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '../services/firebase'
 
 function SignInPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -35,6 +37,7 @@ function SignInPage() {
       }
 
       login(result.token)
+      signInWithEmailAndPassword(auth, email, password).catch(() => {})
       navigate('/')
     } catch {
       setAuthError('Could not reach the server. Please try again.')

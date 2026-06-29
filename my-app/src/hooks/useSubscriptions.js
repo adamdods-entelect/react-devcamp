@@ -1,20 +1,46 @@
-import { useEffect, useState } from 'react'
-import { getSubscriptions } from '../services/subscriptions'
+import { useCallback, useEffect, useState } from 'react'
+import { fetchSubscriptions } from '../services/subscriptions'
+import { getPending, removePending } from '../services/pendingSubscriptions'
 
-// Reactive view of the local subscriptions store. Re-reads on same-tab writes
-// ('subscriptions-changed') and on changes from other tabs ('storage').
+// Loads the customer's subscriptions: the backend's active ones merged with any
+// locally-tracked pending ones (taken up but checks not passed yet). Follows the
+// same shape as useProducts: loading is derived and state is only set from async
+// callbacks. reload() bumps a key to re-run after a cancel or a fresh take-up.
 export default function useSubscriptions() {
-  const [subscriptions, setSubscriptions] = useState(getSubscriptions)
+  const [subscriptions, setSubscriptions] = useState(null)
+  const [error, setError] = useState(null)
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
-    const refresh = () => setSubscriptions(getSubscriptions())
-    window.addEventListener('subscriptions-changed', refresh)
-    window.addEventListener('storage', refresh)
+    let cancelled = false
+    fetchSubscriptions()
+      .then((active) => {
+        if (cancelled) return
+        const activeIds = new Set(active.map((s) => s.id))
+        // Drop any local pending the backend now has (verified), and show the rest.
+        const pending = getPending().filter((p) => {
+          if (activeIds.has(p.id)) {
+            removePending(p.id)
+            return false
+          }
+          return true
+        })
+        setSubscriptions([
+          ...active.map((s) => ({ ...s, pending: false })),
+          ...pending.map((p) => ({ ...p, subscriptionId: `pending-${p.id}`, pending: true })),
+        ])
+        setError(null)
+      })
+      .catch(() => {
+        if (!cancelled) setError('Could not load your subscriptions.')
+      })
     return () => {
-      window.removeEventListener('subscriptions-changed', refresh)
-      window.removeEventListener('storage', refresh)
+      cancelled = true
     }
-  }, [])
+  }, [reloadKey])
 
-  return subscriptions
+  const reload = useCallback(() => setReloadKey((k) => k + 1), [])
+  const loading = subscriptions === null && !error
+
+  return { subscriptions: subscriptions ?? [], loading, error, reload }
 }

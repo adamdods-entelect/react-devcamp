@@ -1,20 +1,34 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, MinusCircle, PlusCircle, Trash2 } from 'lucide-react'
+import useAuth from '../hooks/useAuth'
 import useCart from '../hooks/useCart'
 import { setQty, removeFromCart } from '../services/cart'
 import TopNav from '../components/home/TopNav'
+import CreateAccountSheet from '../components/product/CreateAccountSheet'
+import { cartTotals } from '../utils/cartTotals'
 import { productImage } from '../utils/productImage'
 import emptyCart from '../assets/empty-cart.png'
 
 function CartPage() {
   const navigate = useNavigate()
+  const { status } = useAuth()
   const items = useCart()
+  const [showSheet, setShowSheet] = useState(false)
+
+  const handleCheckout = () => {
+    if (status === 'guest') {
+      setShowSheet(true) // must create an account / log in to check out
+      return
+    }
+    navigate('/checkout')
+  }
 
   if (items.length === 0) {
     return (
-      <>
+      <div className="flex min-h-svh flex-col">
         <TopNav />
-        <div className="mx-auto flex min-h-svh max-w-md flex-col px-6">
+        <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-6">
           <CartHeader onBack={() => navigate(-1)} />
           <div className="flex flex-1 flex-col items-center justify-center text-center">
             <img src={emptyCart} alt="" className="w-60" />
@@ -27,17 +41,11 @@ function CartPage() {
             Continue browsing
           </button>
         </div>
-      </>
+      </div>
     )
   }
 
-  const monthly = items
-    .filter((i) => i.billing !== 'once')
-    .reduce((sum, i) => sum + i.price * i.qty, 0)
-  const once = items
-    .filter((i) => i.billing === 'once')
-    .reduce((sum, i) => sum + i.price * i.qty, 0)
-  const payNow = monthly + once
+  const { once, monthly, payNow } = cartTotals(items)
 
   return (
     <>
@@ -107,7 +115,7 @@ function CartPage() {
               </div>
             </div>
             <button
-              onClick={() => navigate('/checkout')}
+              onClick={handleCheckout}
               className="mt-4 w-full rounded-full bg-gradient-to-r from-blue-600 to-cyan-400 py-3 font-semibold text-white"
             >
               Pay now (R{payNow.toFixed(2)})
@@ -115,6 +123,7 @@ function CartPage() {
           </aside>
         </div>
       </div>
+      <CreateAccountSheet open={showSheet} onClose={() => setShowSheet(false)} />
     </>
   )
 }
