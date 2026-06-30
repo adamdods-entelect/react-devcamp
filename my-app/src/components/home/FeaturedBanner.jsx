@@ -7,8 +7,8 @@ function FeaturedBanner({ loading }) {
   if (loading) {
     return (
       <div className="-mx-4 flex animate-pulse gap-4 overflow-x-auto px-4 pb-1 pt-4">
-        <div className="h-44 w-[85%] shrink-0 rounded-2xl bg-gray-200 sm:w-[calc(50%-0.5rem)]" />
-        <div className="h-44 w-[85%] shrink-0 rounded-2xl bg-gray-200 sm:w-[calc(50%-0.5rem)]" />
+        <div className="h-44 w-[85%] shrink-0 rounded-2xl bg-gray-200 sm:h-56 sm:w-[calc(50%-0.5rem)] lg:h-64" />
+        <div className="h-44 w-[85%] shrink-0 rounded-2xl bg-gray-200 sm:h-56 sm:w-[calc(50%-0.5rem)] lg:h-64" />
       </div>
     )
   }
@@ -18,7 +18,7 @@ function FeaturedBanner({ loading }) {
       {offers.map((offer) => (
         <div
           key={offer.id}
-          className="relative flex h-44 w-[85%] shrink-0 flex-col justify-end overflow-hidden rounded-2xl p-4 text-white sm:w-[calc(50%-0.5rem)]"
+          className="relative flex h-44 w-[85%] shrink-0 flex-col justify-end overflow-hidden rounded-2xl p-4 text-white sm:h-56 sm:w-[calc(50%-0.5rem)] lg:h-64"
         >
           <img
             src={offer.image || 'https://picsum.photos/300'}

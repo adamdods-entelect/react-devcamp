@@ -15,7 +15,7 @@ function ProductRow({ title, viewAllTo, products, loading }) {
       </div>
 
       {/* mobile: horizontal scroll carousel — desktop: grid of larger cards */}
-      <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0 lg:grid-cols-4 xl:grid-cols-6">
+      <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0 lg:grid-cols-4">
         {loading
           ? Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="w-[160px] shrink-0 animate-pulse rounded-xl border border-gray-200 p-3 md:w-auto">

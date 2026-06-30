@@ -27,7 +27,7 @@ function SubscriptionsPage() {
   return (
     <>
       <TopNav />
-      <main className="mx-auto max-w-4xl px-4 pb-24 pt-6 md:pb-8">
+      <main className="mx-auto max-w-4xl px-4 pb-24 pt-6 md:px-6 md:pb-8">
         <h1 className="text-2xl font-bold">Your subscriptions</h1>
 
         {loading ? (

@@ -31,7 +31,7 @@ function HomePage() {
       <div className="md:hidden">
         <Header />
       </div>
-      <main className="mx-auto max-w-7xl px-4 pb-20 md:px-6 md:pb-8">
+      <main className="mx-auto max-w-7xl px-4 pb-24 md:px-6 md:pb-8">
         <FeaturedBanner loading={loading} />
 
         <h1 className="mb-3 mt-4 text-2xl font-bold">Discover</h1>
@@ -42,8 +42,8 @@ function HomePage() {
       )}
 
       {loading && (
-        <div className="grid animate-pulse grid-cols-2 gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (
+        <div className="grid animate-pulse grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="rounded-xl border border-gray-200 p-3">
               <div className="aspect-square rounded-lg bg-gray-200" />
               <div className="mt-2 h-4 w-3/4 rounded bg-gray-200" />
@@ -54,7 +54,7 @@ function HomePage() {
       )}
 
       {products && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
           {visibleProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

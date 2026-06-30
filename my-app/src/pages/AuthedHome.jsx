@@ -10,8 +10,8 @@ function AuthedHome({ products, loading, error }) {
   const list = products || []
   // Recommended = products this customer is actually eligible to take up.
   const { products: eligible, loading: eligLoading } = useEligibleProducts(list, true)
-  const recommended = eligible.slice(0, 6)
-  const newArrivals = getNewArrivals(list, 6)
+  const recommended = eligible.slice(0, 4)
+  const newArrivals = getNewArrivals(list, 4)
 
   return (
     <>
@@ -19,7 +19,7 @@ function AuthedHome({ products, loading, error }) {
       <div className="md:hidden">
         <Header />
       </div>
-      <main className="mx-auto max-w-7xl px-4 pb-20 md:px-6 md:pb-8">
+      <main className="mx-auto max-w-7xl px-4 pb-24 md:px-6 md:pb-8">
         <FeaturedBanner loading={loading} />
 
         {error && (

@@ -31,16 +31,16 @@ function ProductGridPage({ title, range, select, eligibleOnly = false }) {
         </button>
         <h1 className="text-xl font-bold">{title}</h1>
       </header>
-      <h1 className="mx-auto hidden max-w-6xl px-4 pt-6 text-2xl font-bold md:block">{title}</h1>
+      <main className="mx-auto max-w-7xl px-4 pb-24 md:px-6 md:pb-8">
+        <h1 className="mb-4 mt-6 hidden text-2xl font-bold md:block">{title}</h1>
 
-      <main className="mx-auto max-w-6xl px-4 pb-20">
         {error && (
           <p className="text-sm text-red-500">Couldn&apos;t load products: {error}</p>
         )}
 
         {showLoading ? (
-          <div className="grid animate-pulse grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 6 }).map((_, i) => (
+          <div className="grid animate-pulse grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="rounded-xl border border-gray-200 p-3">
                 <div className="aspect-square rounded-lg bg-gray-200" />
                 <div className="mt-2 h-4 w-3/4 rounded bg-gray-200" />
@@ -49,7 +49,7 @@ function ProductGridPage({ title, range, select, eligibleOnly = false }) {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {list.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

@@ -27,12 +27,12 @@ function TopNav() {
 
   return (
     <header className="hidden border-b border-gray-200 bg-white md:block">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
-        <span className="flex items-center gap-2 text-lg font-bold">
-          <img src={logo} alt="" className="h-8 w-8 object-contain" />
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 md:px-8">
+        <span className="flex items-center gap-3 text-2xl font-bold">
+          <img src={logo} alt="" className="h-11 w-11 object-contain" />
           InsureTechGuard
         </span>
-        <nav className="flex gap-6">
+        <nav className="flex gap-8">
           {items.map(({ to, label, Icon, requiresAuth }) => (
             <NavLink
               key={to}
@@ -40,12 +40,12 @@ function TopNav() {
               end
               onClick={(e) => handleClick(e, requiresAuth)}
               className={({ isActive }) =>
-                `flex items-center gap-2 text-sm ${
+                `flex items-center gap-2 text-base ${
                   isActive ? 'text-blue-600' : 'text-gray-600'
                 }`
               }
             >
-              <Icon size={18} />
+              <Icon size={22} />
               {label}
             </NavLink>
           ))}
