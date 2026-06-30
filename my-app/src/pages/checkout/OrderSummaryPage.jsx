@@ -6,6 +6,8 @@ import usePaymentMethods from '../../hooks/usePaymentMethods'
 import { setQty, removeFromCart } from '../../services/cart'
 import { checkEligibility, takeUpProducts } from '../../services/subscriptions'
 import { addPending, removePending } from '../../services/pendingSubscriptions'
+import { getProfile } from '../../services/profile'
+import { generateContract } from '../../services/contract'
 import { cartTotals } from '../../utils/cartTotals'
 import { productImage } from '../../utils/productImage'
 import TopNav from '../../components/home/TopNav'
@@ -40,6 +42,7 @@ function OrderSummaryPage() {
       const ineligible = results.filter((r) => !r.isEligible)
 
       let pending = false
+      let contractUrl = null
       if (eligibleIds.length > 0) {
         const res = await takeUpProducts(eligibleIds)
         if (!res.ok) {
@@ -60,6 +63,23 @@ function OrderSummaryPage() {
         // active ones, so track pending locally. Active take-ups clear any stale pending.
         if (pending) addPending(takenProducts)
         else takenProducts.forEach((p) => removePending(p.id))
+        // US8 — checks passed, so generate + store the contract from the
+        // customer profile + product data. Best-effort: a contract failure must
+        // not fail an order that already went through on the backend.
+        // TEMP(verify): generating regardless of `pending` so the contract
+        // pipeline can be tested without a clean backend pass. Re-gate with
+        // `if (!pending)` once confirmed.
+        try {
+          const customer = await getProfile()
+          contractUrl = await generateContract({
+            customer,
+            products: takenProducts,
+            totals: { once, monthly, payNow },
+          })
+        } catch (e) {
+          // swallow — order is placed; user can still proceed.
+          console.error('contract generation failed', e)
+        }
         // Remove the now-subscribed products (all their billing lines) from the cart.
         items
           .filter((i) => eligibleIds.includes(i.id))
@@ -73,7 +93,7 @@ function OrderSummaryPage() {
         return
       }
 
-      navigate('/checkout/success', { state: { total: payNow, pending } })
+      navigate('/checkout/success', { state: { total: payNow, pending, contractUrl } })
     } catch {
       setPayError('Something went wrong. Please try again.')
       setPaying(false)

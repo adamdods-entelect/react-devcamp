@@ -24,6 +24,33 @@ function SubscriptionsPage() {
     }
   }
 
+  if (!loading && !error && subscriptions.length === 0) {
+    return (
+      <div className="flex min-h-svh flex-col">
+        <TopNav />
+        <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 pb-24">
+          <h1 className="pt-6 text-2xl font-bold">Your subscriptions</h1>
+          <div className="flex flex-1 flex-col items-center justify-center text-center">
+            <div className="flex h-60 w-60 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+              <Layers className="h-24 w-24" />
+            </div>
+            <p className="mt-4 text-lg font-bold">No subscriptions yet</p>
+            <p className="mt-1 max-w-xs text-sm text-gray-500">
+              Browse our products and subscribe to see them here.
+            </p>
+          </div>
+          <Link
+            to="/"
+            className="w-full rounded-full bg-gradient-to-r from-blue-600 to-cyan-400 py-3 text-center font-semibold text-white"
+          >
+            Browse products
+          </Link>
+        </div>
+        <BottomNav />
+      </div>
+    )
+  }
+
   return (
     <>
       <TopNav />
@@ -42,8 +69,6 @@ function SubscriptionsPage() {
               Try again
             </button>
           </div>
-        ) : subscriptions.length === 0 ? (
-          <EmptyState />
         ) : (
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {subscriptions.map((s) => (
@@ -82,26 +107,6 @@ function SubscriptionsPage() {
       </main>
       <BottomNav />
     </>
-  )
-}
-
-function EmptyState() {
-  return (
-    <div className="mt-16 flex flex-col items-center text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-400">
-        <Layers className="h-8 w-8" />
-      </div>
-      <p className="mt-4 font-semibold text-gray-900">No subscriptions yet</p>
-      <p className="mt-1 max-w-xs text-sm text-gray-500">
-        Browse our products and subscribe to see them here.
-      </p>
-      <Link
-        to="/"
-        className="mt-6 rounded-full bg-gradient-to-r from-blue-600 to-cyan-400 px-6 py-3 font-semibold text-white"
-      >
-        Browse products
-      </Link>
-    </div>
   )
 }
 

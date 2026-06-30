@@ -66,7 +66,7 @@ function AboutYouStep({ onNext, defaultValues = {} }) {
             </label>
             <select
               id="customerTypeId"
-              className="w-full appearance-none rounded-md border border-gray-300 px-3 py-3 text-gray-900 outline-none focus:border-cyan-500"
+              className="w-full appearance-none rounded-md border border-gray-300 px-3 py-3 pr-10 text-gray-900 outline-none focus:border-cyan-500"
               {...register('customerTypeId', { required: true })}
             >
               {customerTypes.map((type) => (
@@ -75,6 +75,16 @@ function AboutYouStep({ onNext, defaultValues = {} }) {
                 </option>
               ))}
             </select>
+            <svg
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
         </div>
 

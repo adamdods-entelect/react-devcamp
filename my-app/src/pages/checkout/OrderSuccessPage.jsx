@@ -11,6 +11,8 @@ function OrderSuccessPage() {
   // A pending order = taken up but the fulfilment checks (KYC etc.) aren't done
   // yet. The BRS runs these asynchronously and informs the user when complete.
   const pending = location.state?.pending
+  // US8 — only present when the checks passed (non-pending take-up).
+  const contractUrl = location.state?.contractUrl
 
   return (
     <div className="flex min-h-svh flex-col">
@@ -25,6 +27,16 @@ function OrderSuccessPage() {
               Your order is being processed. We&apos;ll confirm once the verification
               checks are complete.
             </p>
+          )}
+          {contractUrl && (
+            <a
+              href={contractUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 w-full rounded-full border border-blue-600 py-3 text-center font-semibold text-blue-600"
+            >
+              View your contract
+            </a>
           )}
           <button
             onClick={() => navigate('/')}
