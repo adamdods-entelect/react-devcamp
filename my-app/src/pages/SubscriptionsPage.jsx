@@ -29,7 +29,7 @@ function SubscriptionsPage() {
       <div className="flex min-h-svh flex-col">
         <TopNav />
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 pb-24">
-          <h1 className="pt-6 text-2xl font-bold">Your subscriptions</h1>
+          <h1 className="pt-6 text-center text-2xl font-bold">Your subscriptions</h1>
           <div className="flex flex-1 flex-col items-center justify-center text-center">
             <div className="flex h-60 w-60 items-center justify-center rounded-full bg-gray-100 text-gray-400">
               <Layers className="h-24 w-24" />
@@ -54,8 +54,8 @@ function SubscriptionsPage() {
   return (
     <>
       <TopNav />
-      <main className="mx-auto max-w-4xl px-4 pb-24 pt-6 md:px-6 md:pb-8">
-        <h1 className="text-2xl font-bold">Your subscriptions</h1>
+      <main className="mx-auto max-w-md px-6 pb-24 pt-6">
+        <h1 className="text-center text-2xl font-bold">Your subscriptions</h1>
 
         {loading ? (
           <p className="mt-6 text-gray-500">Loading your subscriptions…</p>
@@ -70,7 +70,7 @@ function SubscriptionsPage() {
             </button>
           </div>
         ) : (
-          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+          <ul className="mt-6 flex flex-col gap-3">
             {subscriptions.map((s) => (
               <li
                 key={s.subscriptionId}

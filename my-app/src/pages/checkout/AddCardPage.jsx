@@ -29,7 +29,7 @@ function AddCardPage() {
   return (
     <>
       <TopNav />
-      <div className="mx-auto flex min-h-svh max-w-md flex-col px-6 pb-10">
+      <div className="mx-auto flex min-h-svh max-w-md flex-col px-6 pb-10 md:min-h-0">
         <CheckoutHeader title="Confirm and pay" />
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-8 flex flex-1 flex-col" noValidate>
@@ -81,7 +81,7 @@ function AddCardPage() {
           <button
             type="submit"
             disabled={!isValid}
-            className={`mt-auto w-full rounded-full py-3 font-semibold transition-colors ${
+            className={`mt-auto w-full rounded-full py-3 font-semibold transition-colors md:mt-8 ${
               isValid
                 ? 'bg-gradient-to-r from-blue-600 to-cyan-400 text-white'
                 : 'bg-gray-200 text-gray-400'

@@ -63,22 +63,22 @@ function OrderSummaryPage() {
         // active ones, so track pending locally. Active take-ups clear any stale pending.
         if (pending) addPending(takenProducts)
         else takenProducts.forEach((p) => removePending(p.id))
-        // US8 — checks passed, so generate + store the contract from the
-        // customer profile + product data. Best-effort: a contract failure must
+        // US8 — issue the contract once the customer is eligible (already enforced
+        // above) and KYC has passed. KYC is fulfilment Type A's only check; the
+        // remaining Type B/C checks can gate this later. Generate from the customer
+        // profile + product data and store it. Best-effort: a contract failure must
         // not fail an order that already went through on the backend.
-        // TEMP(verify): generating regardless of `pending` so the contract
-        // pipeline can be tested without a clean backend pass. Re-gate with
-        // `if (!pending)` once confirmed.
-        try {
-          const customer = await getProfile()
-          contractUrl = await generateContract({
-            customer,
-            products: takenProducts,
-            totals: { once, monthly, payNow },
-          })
-        } catch (e) {
-          // swallow — order is placed; user can still proceed.
-          console.error('contract generation failed', e)
+        if (res.kycPassed) {
+          try {
+            const customer = await getProfile()
+            contractUrl = await generateContract({
+              customer,
+              products: takenProducts,
+              totals: { once, monthly, payNow },
+            })
+          } catch (e) {
+            console.error('contract generation failed', e)
+          }
         }
         // Remove the now-subscribed products (all their billing lines) from the cart.
         items
@@ -105,7 +105,7 @@ function OrderSummaryPage() {
       <TopNav />
       <div className="mx-auto max-w-md px-6 pb-48 md:max-w-5xl md:pb-12">
         <CheckoutHeader title="Order summary" />
-        <h1 className="mt-6 hidden text-2xl font-bold md:block">Order summary</h1>
+        <h1 className="mt-6 hidden text-center text-2xl font-bold md:block">Order summary</h1>
 
         <ul className="mt-2 md:mt-4">
           {items.map((item) => {

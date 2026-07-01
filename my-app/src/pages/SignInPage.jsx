@@ -19,6 +19,7 @@ function SignInPage() {
   const { login } = useAuth()
   const [authError, setAuthError] = useState('')
   const notice = location.state?.notice // e.g. redirected here from the Google flow
+  const from = location.state?.from ?? '/' // deep-link destination, forwarded from /login
 
   const onSubmit = async ({ email, password }) => {
     setAuthError('')
@@ -38,7 +39,7 @@ function SignInPage() {
 
       login(result.token)
       signInWithEmailAndPassword(auth, email, password).catch(() => {})
-      navigate('/')
+      navigate(from)
     } catch {
       setAuthError('Could not reach the server. Please try again.')
     }

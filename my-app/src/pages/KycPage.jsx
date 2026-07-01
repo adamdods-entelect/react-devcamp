@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ChevronRight, CheckCircle2, Loader2, AlertCircle } from 'lucide-react'
 import kycIllustration from '../assets/kyc.png'
@@ -6,6 +6,7 @@ import UploadOptionsSheet from '../components/kyc/UploadOptionsSheet'
 import CameraCaptureFlow from '../components/kyc/CameraCaptureFlow'
 import PhotoUploadFlow from '../components/kyc/PhotoUploadFlow'
 import { uploadKycDocument } from '../services/kycStorage'
+import { seedKycStatus } from '../services/kyc'
 import { getProfile } from '../services/profile'
 
 const DOCS = {
@@ -71,6 +72,16 @@ function KycPage() {
     const [upload, setUpload] = useState(null)       // { doc, accept, noun } for the upload flow
 
     const bothDone = status.residence === 'done' && status.selfie === 'done'
+
+    // Bridge the in-app KYC flow to the backend: once both documents are uploaded,
+    // mark the customer KYC-verified so the fulfilment KYC check passes (enabling
+    // the contract at checkout — US8). Best-effort and runs once.
+    const seededRef = useRef(false)
+    useEffect(() => {
+        if (!bothDone || !customerId || seededRef.current) return
+        seededRef.current = true
+        seedKycStatus(customerId).catch((e) => console.error('KYC seed failed', e))
+    }, [bothDone, customerId])
 
     const startUpload = async (doc, file) => {
         if (!customerId) {

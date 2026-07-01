@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { FileText } from 'lucide-react'
 import useCart from '../../hooks/useCart'
 import useAuth from '../../hooks/useAuth'
 import useEligibility from '../../hooks/useEligibility'
 import { addToCart } from '../../services/cart'
+import { downloadProductPdf } from '../../services/productPdf'
 
 function PriceBar({ product }) {
     const navigate = useNavigate()
@@ -24,6 +27,17 @@ function PriceBar({ product }) {
         addToCart(product)
     }
 
+    // Milestone 7: download this product's details as a PDF.
+    const [pdfBusy, setPdfBusy] = useState(false)
+    const handleDownloadPdf = async () => {
+        setPdfBusy(true)
+        try {
+            await downloadProductPdf(product)
+        } finally {
+            setPdfBusy(false)
+        }
+    }
+
     return (
         <footer className="fixed bottom-0 left-1/2 flex w-full max-w-5xl -translate-x-1/2 items-center justify-between border-t border-[#e5e4e7] bg-white px-4 py-3">
             <div className="flex flex-col">
@@ -36,18 +50,29 @@ function PriceBar({ product }) {
                     <span className="text-[13px] text-[#6b6375]">per month</span>
                 )}
             </div>
-            <button
-                type="button"
-                onClick={handleClick}
-                disabled={blocked || loading}
-                className={`rounded-3xl px-7 py-3 font-semibold ${
-                    blocked
-                        ? 'cursor-not-allowed bg-gray-200 text-gray-400'
-                        : 'bg-gradient-to-r from-[#2f6bff] to-[#00c2ff] text-white'
-                }`}
-            >
-                {inCart ? 'In cart — View' : blocked ? 'Not eligible' : 'Add to cart'}
-            </button>
+            <div className="flex items-center gap-3">
+                <button
+                    type="button"
+                    onClick={handleDownloadPdf}
+                    disabled={pdfBusy}
+                    aria-label="Download product details as PDF"
+                    className="flex h-11 w-11 items-center justify-center rounded-full border border-[#e5e4e7] text-[#2f6bff] disabled:opacity-50"
+                >
+                    <FileText className="h-5 w-5" />
+                </button>
+                <button
+                    type="button"
+                    onClick={handleClick}
+                    disabled={blocked || loading}
+                    className={`rounded-3xl px-7 py-3 font-semibold ${
+                        blocked
+                            ? 'cursor-not-allowed bg-gray-200 text-gray-400'
+                            : 'bg-gradient-to-r from-[#2f6bff] to-[#00c2ff] text-white'
+                    }`}
+                >
+                    {inCart ? 'In cart — View' : blocked ? 'Not eligible' : 'Add to cart'}
+                </button>
+            </div>
         </footer>
     )
 }

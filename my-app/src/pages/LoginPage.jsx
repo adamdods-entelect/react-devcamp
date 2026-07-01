@@ -1,17 +1,20 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import logo from '../assets/logo-login.png'
 import useAuth from '../hooks/useAuth'
 import { signInWithGoogle } from '../services/googleAuth'
 
 function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  // Where to go after auth: the deep link the user was blocked from, else home.
+  const from = location.state?.from ?? '/'
   const { login, loginAsGuest } = useAuth()
   const [authError, setAuthError] = useState('')
 
   const handleGuest = () => {
     loginAsGuest()
-    navigate('/')
+    navigate(from)
   }
 
   const handleGoogle = async () => {
@@ -20,7 +23,7 @@ function LoginPage() {
       const res = await signInWithGoogle()
       if (res.kind === 'existing') {
         login(res.token) // returning user: backend JWT + Firebase session both active
-        navigate('/')
+        navigate(from)
       } else if (res.kind === 'exists') {
         // email was registered with a password -> Google can't log into it
         navigate('/login/signin', {
@@ -60,6 +63,7 @@ function LoginPage() {
       <div className="mx-auto w-full max-w-sm space-y-5 pb-12">
         <Link
           to="/login/signin"
+          state={{ from }}
           className="block w-full rounded-full bg-gradient-to-r from-blue-600 to-cyan-400 py-3 text-center font-semibold text-white"
         >
           Login

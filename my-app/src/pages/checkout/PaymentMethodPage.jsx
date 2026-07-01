@@ -6,6 +6,7 @@ import { selectCard } from '../../services/paymentMethods'
 import TopNav from '../../components/home/TopNav'
 import CheckoutHeader from '../../components/checkout/CheckoutHeader'
 import EmptyCheckout from '../../components/checkout/EmptyCheckout'
+import bankCardLogo from '../../assets/bankcardlogo.png'
 
 // Step 1 of checkout (wireframe 5): pick a saved card or add a new one, then
 // continue to the order summary.
@@ -19,7 +20,7 @@ function PaymentMethodPage() {
   return (
     <>
       <TopNav />
-      <div className="mx-auto flex min-h-svh max-w-md flex-col px-6 pb-10">
+      <div className="mx-auto flex min-h-svh max-w-md flex-col px-6 pb-10 md:min-h-0">
         <CheckoutHeader title="Select a payment method" />
 
         {cards.length > 0 && (
@@ -60,7 +61,7 @@ function PaymentMethodPage() {
           >
             <span>
               <span className="block font-bold">Credit card</span>
-              <span className="mt-1 block text-sm text-gray-500">Visa · Mastercard · Amex</span>
+              <img src={bankCardLogo} alt="Visa, Mastercard, American Express" className="mt-2 h-5 w-auto" />
             </span>
             <ChevronRight className="h-6 w-6 text-blue-600" />
           </button>
@@ -70,7 +71,7 @@ function PaymentMethodPage() {
           type="button"
           disabled={!selectedId}
           onClick={() => navigate('/checkout/summary')}
-          className={`mt-auto w-full rounded-full py-3 font-semibold transition-colors ${
+          className={`mt-auto w-full rounded-full py-3 font-semibold transition-colors md:mt-8 ${
             selectedId
               ? 'bg-gradient-to-r from-blue-600 to-cyan-400 text-white'
               : 'bg-gray-200 text-gray-400'

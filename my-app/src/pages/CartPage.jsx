@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MinusCircle, PlusCircle, Trash2 } from 'lucide-react'
 import useAuth from '../hooks/useAuth'
@@ -9,6 +9,8 @@ import BottomNav from '../components/home/BottomNav'
 import CreateAccountSheet from '../components/product/CreateAccountSheet'
 import { cartTotals } from '../utils/cartTotals'
 import { productImage } from '../utils/productImage'
+import { getKycStatus } from '../services/kycStorage'
+import { getProfile } from '../services/profile'
 import emptyCart from '../assets/empty-cart.png'
 
 function CartPage() {
@@ -16,6 +18,21 @@ function CartPage() {
   const { status } = useAuth()
   const items = useCart()
   const [showSheet, setShowSheet] = useState(false)
+
+  // Checkout requires a completed KYC upload (proof of residence + selfie).
+  // null = still loading; false = one or both missing; true = both uploaded.
+  const [kycComplete, setKycComplete] = useState(null)
+  useEffect(() => {
+    if (status !== 'authenticated') return
+    let active = true
+    getProfile()
+      .then((p) => (p ? getKycStatus(p.id) : null))
+      .then((s) => active && setKycComplete(!!(s && s.residence && s.selfie)))
+      .catch(() => active && setKycComplete(false))
+    return () => {
+      active = false
+    }
+  }, [status])
 
   const handleCheckout = () => {
     if (status === 'guest') {
@@ -30,7 +47,7 @@ function CartPage() {
       <div className="flex min-h-svh flex-col">
         <TopNav />
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 pb-24">
-          <h1 className="pt-6 text-2xl font-bold">Cart</h1>
+          <h1 className="pt-6 text-center text-2xl font-bold">Cart</h1>
           <div className="flex flex-1 flex-col items-center justify-center text-center">
             <img src={emptyCart} alt="" className="w-60" />
             <p className="mt-4 text-lg font-bold">Your cart is empty</p>
@@ -48,12 +65,14 @@ function CartPage() {
   }
 
   const { once, monthly, payNow } = cartTotals(items)
+  // Block a logged-in user from paying until KYC is complete (and while it loads).
+  const checkoutBlocked = status === 'authenticated' && kycComplete !== true
 
   return (
     <>
       <TopNav />
       <div className="mx-auto max-w-md px-6 pb-48 md:max-w-5xl md:pb-12">
-        <h1 className="pt-6 text-2xl font-bold">Cart</h1>
+        <h1 className="pt-6 text-center text-2xl font-bold">Cart</h1>
 
         <div className="md:mt-4 md:flex md:items-start md:gap-8">
           <ul className="mt-2 md:mt-0 md:flex-1">
@@ -117,10 +136,26 @@ function CartPage() {
             </div>
             <button
               onClick={handleCheckout}
-              className="mt-4 w-full rounded-full bg-gradient-to-r from-blue-600 to-cyan-400 py-3 font-semibold text-white"
+              disabled={checkoutBlocked}
+              className={`mt-4 w-full rounded-full py-3 font-semibold transition-colors ${
+                checkoutBlocked
+                  ? 'bg-gray-200 text-gray-400'
+                  : 'bg-gradient-to-r from-blue-600 to-cyan-400 text-white'
+              }`}
             >
               Pay now (R{payNow.toFixed(2)})
             </button>
+            {kycComplete === false && (
+              <p className="mt-2 text-center text-sm text-gray-500">
+                Upload both KYC documents to check out.{' '}
+                <button
+                  onClick={() => navigate('/kyc')}
+                  className="font-semibold text-blue-600"
+                >
+                  Complete KYC
+                </button>
+              </p>
+            )}
           </aside>
         </div>
       </div>

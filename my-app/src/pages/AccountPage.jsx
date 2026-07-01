@@ -67,7 +67,7 @@ function AccountPage() {
     <>
       <TopNav />
       <main className="mx-auto max-w-2xl px-4 pb-24 pt-6 md:px-6 md:pb-8">
-        <h1 className="text-2xl font-bold">Account</h1>
+        <h1 className="text-center text-2xl font-bold">Account</h1>
 
         {/* avatar + name header */}
         <div className="mt-6 flex items-center gap-4">

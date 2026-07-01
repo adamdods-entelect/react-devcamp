@@ -51,13 +51,16 @@ export async function takeUpProducts(productIds) {
   if (res.status === 401) return { ok: false, reason: 'unauthorized' }
   if (res.status === 422) {
     const body = await res.json().catch(() => ({}))
-    const pendingChecks = (body.fulfilmentResultList ?? [])
-      .filter((c) => !c.passed)
-      .map((c) => c.checkName)
-    return { ok: true, pending: true, pendingChecks }
+    const checks = body.fulfilmentResultList ?? []
+    const pendingChecks = checks.filter((c) => !c.passed).map((c) => c.checkName)
+    // Interim contract gate: KYC is fulfilment Type A's only check, so we report
+    // whether it passed even while the other (Type B/C) checks are still pending.
+    const kycPassed = checks.some((c) => /kyc/i.test(c.checkName) && c.passed)
+    return { ok: true, pending: true, pendingChecks, kycPassed }
   }
   if (!res.ok) return { ok: false, reason: 'server' }
-  return { ok: true, pending: false }
+  // 200 = every check passed, KYC included.
+  return { ok: true, pending: false, kycPassed: true }
 }
 
 export async function cancelSubscription(id) {
