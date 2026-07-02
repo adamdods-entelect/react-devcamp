@@ -37,30 +37,34 @@ export async function checkEligibility(productIds) {
   return res.json()
 }
 
-// POST take-up (US3): actually subscribe to the products. A 200 means the
-// products are active; a 422 means they were accepted but the fulfilment checks
-// (KYC/fraud/credit/etc) haven't passed yet. Per the BRS those checks run
-// asynchronously, so we treat 422 as "placed, pending" rather than a failure.
-// Returns { ok, pending, pendingChecks } or { ok:false, reason } on a real error.
+// POST take-up (US3): actually subscribe to the products. The backend runs the
+// fulfilment checks appropriate to each product's type (A/B/C) and returns a
+// FINAL pass/fail per check — there is no async "pending" state:
+//   200 = every required check passed -> subscription is active.
+//   422 = at least one check failed (each failed check carries a failureMessage)
+//         -> nothing is subscribed; this is a decline, not "pending".
+// Returns { ok, outcome: 'passed' | 'declined', failedChecks } or
+// { ok:false, reason } on a real error. failedChecks = [{ name, message }].
 export async function takeUpProducts(productIds) {
   const res = await fetch(BASE, {
     method: 'POST',
     headers: authHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ productIds }),
   })
-  if (res.status === 401) return { ok: false, reason: 'unauthorized' }
   if (res.status === 422) {
     const body = await res.json().catch(() => ({}))
-    const checks = body.fulfilmentResultList ?? []
-    const pendingChecks = checks.filter((c) => !c.passed).map((c) => c.checkName)
-    // Interim contract gate: KYC is fulfilment Type A's only check, so we report
-    // whether it passed even while the other (Type B/C) checks are still pending.
-    const kycPassed = checks.some((c) => /kyc/i.test(c.checkName) && c.passed)
-    return { ok: true, pending: true, pendingChecks, kycPassed }
+    const failedChecks = (body.fulfilmentResultList ?? [])
+      .filter((c) => !c.passed)
+      .map((c) => ({ name: c.checkName, message: c.failureMessage, productIds: c.productIds ?? [] }))
+    return { ok: true, outcome: 'declined', failedChecks }
   }
-  if (!res.ok) return { ok: false, reason: 'server' }
-  // 200 = every check passed, KYC included.
-  return { ok: true, pending: false, kycPassed: true }
+  if (!res.ok) {
+    // Temporary diagnostic: surface the real status + body for non-decline errors.
+    const detail = await res.text().catch(() => '')
+    console.error('take-up failed:', res.status, detail)
+    return { ok: false, reason: res.status === 401 ? 'unauthorized' : 'server' }
+  }
+  return { ok: true, outcome: 'passed' }
 }
 
 export async function cancelSubscription(id) {

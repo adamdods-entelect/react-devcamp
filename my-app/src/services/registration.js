@@ -1,6 +1,7 @@
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { requestToken } from './authService'
 import { auth } from './firebase'
+import { seedMaritalStatus, seedLivingStatus } from './dha'
 
 const CUSTOMER_TYPE_INDIVIDUAL = 1
 
@@ -47,6 +48,19 @@ async function ensureFirebaseUser(email, password) {
   }
 }
 
+// Seed the DHA statuses the customer declared at registration (marital + living)
+// so the fulfilment checks can pass at take-up. Duplicate ID is NOT seeded here —
+// it's computed from the customer store at checkout. Best-effort: a failure only
+// means some products stay declined until set — it must not fail an otherwise-
+// complete registration. Keyed by the ID number (not customer id), and uses the
+// freshly-issued token (not yet in localStorage).
+async function seedDhaStatuses(token, idNumber, { maritalStatus, livingStatus }) {
+  const seeds = []
+  if (maritalStatus) seeds.push(seedMaritalStatus(idNumber, maritalStatus, token))
+  if (livingStatus) seeds.push(seedLivingStatus(idNumber, livingStatus, token))
+  await Promise.all(seeds.map((p) => p.catch((e) => console.error('DHA seed failed:', e))))
+}
+
 // Step 1: create the login credentials (auth service).
 async function createUser(username, password) {
   const res = await fetch('/v1/user', {
@@ -87,6 +101,8 @@ export async function registerCustomer({
   lastName,
   idNumber,
   customerTypeId = CUSTOMER_TYPE_INDIVIDUAL,
+  maritalStatus,
+  livingStatus,
 }) {
   const user = await createUser(email, password)
   if (!user.ok) return user
@@ -105,6 +121,10 @@ export async function registerCustomer({
 
   // Open a qualifying account so the customer can actually take up products.
   await linkDefaultAccount(tokenResult.token, customerTypeId)
+
+  // Seed the DHA statuses the user declared (marital + living) so the fulfilment
+  // checks can pass at take-up. Best-effort, keyed by ID number.
+  await seedDhaStatuses(tokenResult.token, idNumber, { maritalStatus, livingStatus })
 
   // Backend account is in place — mirror it into Firebase Auth (best-effort).
   await ensureFirebaseUser(email, password)

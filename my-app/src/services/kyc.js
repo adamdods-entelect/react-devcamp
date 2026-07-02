@@ -9,12 +9,14 @@
 // A passing status = primaryIndicator true + taxCompliance AMBER/GREEN.
 export async function seedKycStatus(customerId) {
   const token = localStorage.getItem('accessToken')
-  const res = await fetch(`/v1/kyc/${customerId}`, {
+  const auth = { Authorization: `Bearer ${token}` }
+  const url = `/v1/kyc/${customerId}`
+  // Add-only endpoint: clear any existing record first so re-visiting the KYC
+  // step can't create duplicates (the backend 500s on multiple records).
+  await fetch(url, { method: 'DELETE', headers: auth }).catch(() => {})
+  const res = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { ...auth, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       primaryIndicator: true,
       secondaryIndicator: true,
@@ -23,4 +25,14 @@ export async function seedKycStatus(customerId) {
   })
   // 204 = created. Anything else is a real failure for the caller to handle.
   if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`)
+}
+
+// Reads the backend KYC verification (for display). Returns
+// { primaryIndicator, secondaryIndicator, taxCompliance } or null if not set.
+export async function getKycVerification(customerId) {
+  const token = localStorage.getItem('accessToken')
+  const res = await fetch(`/v1/kyc/${customerId}`, { headers: { Authorization: `Bearer ${token}` } })
+  if (res.status === 404) return null
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
 }

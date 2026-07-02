@@ -125,6 +125,8 @@ function RegisterPage() {
                 lastName: all.lastName,
                 idNumber: all.idNumber,
                 customerTypeId: all.customerTypeId,
+                maritalStatus: all.maritalStatus,
+                livingStatus: all.livingStatus,
             })
 
             if (!result.ok) {

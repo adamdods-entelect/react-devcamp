@@ -13,7 +13,15 @@ function AboutYouStep({ onNext, defaultValues = {} }) {
     handleSubmit,
     control,
     formState: { isValid, errors },
-  } = useForm({ mode: 'onChange', defaultValues: { customerTypeId: '1', ...defaultValues } })
+  } = useForm({
+    mode: 'onChange',
+    defaultValues: {
+      customerTypeId: '1',
+      maritalStatus: 'Single',
+      alive: true,
+      ...defaultValues,
+    },
+  })
 
   const [customerTypes, setCustomerTypes] = useState([])
 
@@ -32,7 +40,15 @@ function AboutYouStep({ onNext, defaultValues = {} }) {
     }
   }, [])
 
-  const submit = (values) => onNext({ ...values, customerTypeId: Number(values.customerTypeId) })
+  // The DHA declarations (alive) + marital status become the values we seed into
+  // the Home Affairs checks. Duplicate ID is NOT declared here — it's computed
+  // from the customer store at checkout (real detection, not self-assertion).
+  const submit = ({ alive, ...values }) =>
+    onNext({
+      ...values,
+      customerTypeId: Number(values.customerTypeId),
+      livingStatus: alive ? 'alive' : 'deceased',
+    })
 
   const idValue = useWatch({ control, name: 'idNumber' }) ?? ''
   const idValid = isValidSaId(idValue)
@@ -86,6 +102,40 @@ function AboutYouStep({ onNext, defaultValues = {} }) {
               <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
+
+          <div className="relative">
+            <label
+              htmlFor="maritalStatus"
+              className="absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500"
+            >
+              Marital status
+            </label>
+            <select
+              id="maritalStatus"
+              className="w-full appearance-none rounded-md border border-gray-300 px-3 py-3 pr-10 text-gray-900 outline-none focus:border-cyan-500"
+              {...register('maritalStatus', { required: true })}
+            >
+              <option value="Single">Single</option>
+              <option value="Married">Married</option>
+              <option value="Divorced">Divorced</option>
+              <option value="Widowed">Widowed</option>
+            </select>
+            <svg
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+
+          <label className="flex items-start gap-3 text-sm text-gray-600">
+            <input type="checkbox" className="mt-0.5 h-4 w-4 accent-blue-600" {...register('alive')} />
+            <span>This application is for a living person.</span>
+          </label>
         </div>
 
         <button

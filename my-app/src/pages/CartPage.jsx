@@ -67,6 +67,9 @@ function CartPage() {
   const { once, monthly, payNow } = cartTotals(items)
   // Block a logged-in user from paying until KYC is complete (and while it loads).
   const checkoutBlocked = status === 'authenticated' && kycComplete !== true
+  // While the KYC status loads, show a clear "Checking…" label rather than a
+  // plain greyed button, so the disabled moment reads as intentional.
+  const checkingKyc = status === 'authenticated' && kycComplete === null
 
   return (
     <>
@@ -143,7 +146,7 @@ function CartPage() {
                   : 'bg-gradient-to-r from-blue-600 to-cyan-400 text-white'
               }`}
             >
-              Pay now (R{payNow.toFixed(2)})
+              {checkingKyc ? 'Checking…' : `Pay now (R${payNow.toFixed(2)})`}
             </button>
             {kycComplete === false && (
               <p className="mt-2 text-center text-sm text-gray-500">

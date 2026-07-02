@@ -8,10 +8,8 @@ import CheckoutHeader from '../../components/checkout/CheckoutHeader'
 function OrderSuccessPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  // A pending order = taken up but the fulfilment checks (KYC etc.) aren't done
-  // yet. The BRS runs these asynchronously and informs the user when complete.
-  const pending = location.state?.pending
-  // US8 — only present when the checks passed (non-pending take-up).
+  // This screen is only reached on a full pass (a decline stays on the summary),
+  // so the take-up succeeded and a contract was generated (US8).
   const contractUrl = location.state?.contractUrl
 
   return (
@@ -22,12 +20,6 @@ function OrderSuccessPage() {
         <div className="flex flex-1 flex-col items-center justify-center text-center">
           <CheckCircle2 className="h-20 w-20 text-green-500" strokeWidth={1.5} />
           <p className="mt-4 text-xl font-bold">Thank you for your order.</p>
-          {pending && (
-            <p className="mt-2 max-w-xs text-sm text-gray-500">
-              Your order is being processed. We&apos;ll confirm once the verification
-              checks are complete.
-            </p>
-          )}
           {contractUrl && (
             <a
               href={contractUrl}

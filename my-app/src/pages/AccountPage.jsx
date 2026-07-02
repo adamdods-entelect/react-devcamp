@@ -6,6 +6,8 @@ import BottomNav from '../components/home/BottomNav'
 import useAuth from '../hooks/useAuth'
 import { getProfile } from '../services/profile'
 import { getKycStatus } from '../services/kycStorage'
+import { getKycVerification } from '../services/kyc'
+import { getMaritalStatus, getLivingStatus, getDuplicateId } from '../services/dha'
 import { auth } from '../services/firebase'
 
 // Shows last 4 digits of the SA ID, masking the rest.
@@ -21,6 +23,7 @@ function AccountPage() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [kyc, setKyc] = useState(null) // null = loading, else { residence, selfie }
+  const [checks, setChecks] = useState(null) // null = loading, else per-check values
 
   useEffect(() => {
     let active = true
@@ -43,6 +46,26 @@ function AccountPage() {
     }
   }, [profile?.id])
 
+  // Fetch the backend verification checks we can read (KYC + DHA). Credit and
+  // Fraud have no read endpoint, so they're shown as "assessed at checkout".
+  useEffect(() => {
+    if (!profile?.id || !profile?.idNumber) return
+    let active = true
+    Promise.allSettled([
+      getKycVerification(profile.id),
+      getMaritalStatus(profile.idNumber),
+      getLivingStatus(profile.idNumber),
+      getDuplicateId(profile.idNumber),
+    ]).then(([kycV, marital, living, duplicate]) => {
+      if (!active) return
+      const val = (r) => (r.status === 'fulfilled' ? r.value : 'error')
+      setChecks({ kyc: val(kycV), marital: val(marital), living: val(living), duplicate: val(duplicate) })
+    })
+    return () => {
+      active = false
+    }
+  }, [profile?.id, profile?.idNumber])
+
   const handleLogout = async () => {
     await logout()
     navigate('/login')
@@ -61,7 +84,17 @@ function AccountPage() {
     { label: 'Email', value: email },
     { label: 'ID number', value: maskId(profile?.idNumber) },
     { label: 'Customer type', value: profile?.customerType?.name },
+    { label: 'Account type', value: profile?.customerAccounts?.map((a) => a.name).join(', ') },
   ].filter((d) => d.value)
+
+  const checkList = checks && [
+    { label: 'KYC', ...kycDisplay(checks.kyc) },
+    { label: 'Living status', ...livingDisplay(checks.living) },
+    { label: 'Duplicate ID', ...duplicateDisplay(checks.duplicate) },
+    { label: 'Marital status', ...maritalDisplay(checks.marital) },
+    { label: 'Credit', text: 'Assessed at checkout', tone: 'neutral' },
+    { label: 'Fraud', text: 'Assessed at checkout', tone: 'neutral' },
+  ]
 
   return (
     <>
@@ -128,6 +161,20 @@ function AccountPage() {
           </div>
         )}
 
+        {/* Verification checks (fulfilment) */}
+        {!isGuest && profile?.id && (
+          <div className="mt-8">
+            <h2 className="mb-2 text-sm font-semibold text-gray-700">Verification checks</h2>
+            <dl className="divide-y divide-gray-200 rounded-xl border border-gray-200">
+              {checkList
+                ? checkList.map((c) => <CheckRow key={c.label} label={c.label} text={c.text} tone={c.tone} />)
+                : ['KYC', 'Living status', 'Duplicate ID', 'Marital status', 'Credit', 'Fraud'].map((label) => (
+                    <CheckRow key={label} label={label} loading />
+                  ))}
+            </dl>
+          </div>
+        )}
+
         <button
           onClick={handleLogout}
           className="mt-8 flex w-full items-center justify-center gap-2 rounded-full border border-red-200 py-3 font-semibold text-red-600"
@@ -138,6 +185,47 @@ function AccountPage() {
       </main>
       <BottomNav />
     </>
+  )
+}
+
+// Derive display text + tone (good/bad/neutral) for each fulfilment check.
+function kycDisplay(v) {
+  if (v === 'error') return { text: 'Unavailable', tone: 'neutral' }
+  if (!v) return { text: 'Not verified', tone: 'bad' }
+  const tax = String(v.taxCompliance ?? '').toLowerCase()
+  const ok = v.primaryIndicator && (tax === 'amber' || tax === 'green')
+  return ok ? { text: 'Verified', tone: 'good' } : { text: 'Not verified', tone: 'bad' }
+}
+
+function livingDisplay(v) {
+  if (v === 'error') return { text: 'Unavailable', tone: 'neutral' }
+  if (v == null) return { text: 'Not set', tone: 'neutral' }
+  return v === 'alive' ? { text: 'Alive', tone: 'good' } : { text: 'Deceased', tone: 'bad' }
+}
+
+function duplicateDisplay(v) {
+  if (v === 'error') return { text: 'Unavailable', tone: 'neutral' }
+  if (v == null) return { text: 'Not set', tone: 'neutral' }
+  return v === false ? { text: 'No duplicate', tone: 'good' } : { text: 'Duplicate found', tone: 'bad' }
+}
+
+function maritalDisplay(v) {
+  if (v === 'error') return { text: 'Unavailable', tone: 'neutral' }
+  if (v == null) return { text: 'Not set', tone: 'neutral' }
+  return { text: v, tone: 'neutral' } // status only; whether it passes depends on the product
+}
+
+function CheckRow({ label, text, tone, loading }) {
+  const color = tone === 'good' ? 'text-green-600' : tone === 'bad' ? 'text-red-600' : 'text-gray-500'
+  return (
+    <div className="flex items-center justify-between px-4 py-3">
+      <span className="text-sm text-gray-700">{label}</span>
+      {loading ? (
+        <span className="h-4 w-24 animate-pulse rounded bg-gray-100" />
+      ) : (
+        <span className={`text-sm font-medium ${color}`}>{text}</span>
+      )}
+    </div>
   )
 }
 

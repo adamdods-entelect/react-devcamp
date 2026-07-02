@@ -113,12 +113,12 @@ function CameraCaptureFlow({
                 {phase === 'review' && (
                     <>
                         {error && <p className="text-center text-sm text-red-400">{error}</p>}
-                        <button onClick={submit} className="w-full rounded-full bg-white py-3 font-semibold text-black">
+                        <button onClick={submit} className="w-full max-w-sm rounded-full bg-white py-3 font-semibold text-black">
                             Submit {noun}
                         </button>
                         <button
                             onClick={retake}
-                            className="w-full rounded-full border border-white/30 py-3 font-semibold text-white"
+                            className="w-full max-w-sm rounded-full border border-white/30 py-3 font-semibold text-white"
                         >
                             Retake {noun}
                         </button>
